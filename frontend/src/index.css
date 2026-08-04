@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-paper text-ink font-body antialiased;
+  background-image: radial-gradient(circle at 15% 10%, rgba(52, 87, 213, 0.06), transparent 45%),
+    radial-gradient(circle at 85% 0%, rgba(139, 123, 224, 0.08), transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(15, 169, 138, 0.06), transparent 40%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: #dbe4ff;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #d3dcf0;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.card {
+  @apply bg-surface border border-border rounded-xl2 shadow-soft;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full bg-primary text-white font-semibold px-6 py-3 shadow-soft transition-all duration-200 ease-out transform will-change-transform;
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  @apply bg-primary-dark -translate-y-0.5 scale-[1.02] shadow-card;
+}
+
+.btn-primary:active {
+  @apply translate-y-0 scale-[0.99];
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full bg-white text-ink font-semibold px-6 py-3 border border-border transition-all duration-200 ease-out transform will-change-transform;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus-visible {
+  @apply -translate-y-0.5 scale-[1.02] shadow-soft;
+}
+
+.btn-secondary:active {
+  @apply translate-y-0 scale-[0.98];
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

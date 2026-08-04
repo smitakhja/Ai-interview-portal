@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "autoprefixer": "^10.5.4",
+    "axios": "^1.18.1",
+    "browserslist": "^4.28.6",
+    "caniuse-lite": "^1.0.30001806",
+    "postcss": "^8.5.19"
+  }
+}
