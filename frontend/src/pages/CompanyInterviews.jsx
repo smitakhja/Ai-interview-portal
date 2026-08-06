@@ -287,21 +287,21 @@ export default function CompanyInterviews() {
         </AnimatePresence>
       </div>
 
-      <div ref={videoSectionRef} className="mb-4 sm:mb-6 space-y-3">
+      <div ref={videoSectionRef} className="mb-4 sm:mb-6 flex flex-col lg:flex-row gap-3 items-stretch lg:items-center">
         {/* Search bar */}
-        <div className="relative w-full sm:max-w-sm">
+        <div className="relative w-full lg:max-w-sm shrink-0">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint" />
           <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search videos, tags, questions..." className="w-full bg-white border border-border rounded-full pl-9 pr-4 py-2 sm:py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-primary/30 shadow-soft" />
           {search && (<button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink"><X size={13} /></button>)}
         </div>
-        {/* Difficulty filter + Tag filter - horizontally scrollable row */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+        {/* Difficulty filter + Tag filter */}
+        <div className="flex items-center gap-2 overflow-x-auto lg:flex-wrap pb-1 -mx-1 px-1 lg:mx-0 lg:px-0 scrollbar-hide lg:overflow-visible">
           <div className="flex items-center gap-1 sm:gap-1.5 bg-white border border-border rounded-full px-2.5 sm:px-3 py-1.5 sm:py-2 shadow-soft shrink-0">
             <Filter size={12} className="text-ink-faint" />
             {diffs.map((d) => (<button key={d} onClick={() => setDiffFilter(d)} className={`text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full transition-colors whitespace-nowrap ${diffFilter === d ? "bg-primary text-white" : "text-ink-soft hover:text-ink"}`}>{d}</button>))}
           </div>
           {allTags.slice(0, 7).map((t) => (
-            <button key={t} onClick={() => setTagFilter(t)} className={`shrink-0 flex items-center gap-1 text-[10px] sm:text-xs font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border transition-all whitespace-nowrap ${tagFilter === t ? "bg-primary-soft border-primary/20 text-primary" : "bg-white border-border text-ink-soft hover:text-ink"}`}>
+            <button key={t} onClick={() => setTagFilter(t)} className={`shrink-0 lg:shrink flex items-center gap-1 text-[10px] sm:text-xs font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border transition-all whitespace-nowrap ${tagFilter === t ? "bg-primary-soft border-primary/20 text-primary" : "bg-white border-border text-ink-soft hover:text-ink"}`}>
               {t !== "All" && <Tag size={9} />} {t}
             </button>
           ))}
