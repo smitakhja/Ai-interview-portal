@@ -13,6 +13,8 @@ export default function VideoInterview() {
   const [loading, setLoading] = useState(false);
   const videoRef = useRef(null);
 
+  const [role, setRole] = useState("Data Analyst");
+
   // Phase 4: Recording State
   const mediaRecorderRef = useRef(null);
   const [recordedChunks, setRecordedChunks] = useState([]);
@@ -194,7 +196,7 @@ export default function VideoInterview() {
   // Fetch Questions when stage changes to interview
   useEffect(() => {
     if (stage === "interview") {
-      api.post("/video-interview/generate-questions", { role: "Software Engineer", count: 3 })
+      api.post("/video-interview/generate-questions", { role, count: 5 })
         .then(res => {
           setQuestions(res.data.questions || []);
         })
@@ -291,11 +293,26 @@ export default function VideoInterview() {
             <MonitorPlay size={32} className="text-blue-400" />
           </div>
           <h1 className="text-2xl font-bold mb-2">AI Video Interview</h1>
-          <p className="text-slate-400 text-sm mb-8">To begin your interview, we need access to your camera and microphone. This ensures the AI can see and hear you clearly.</p>
+          <p className="text-slate-400 text-sm mb-6">To begin your interview, we need access to your camera and microphone. This ensures the AI can see and hear you clearly.</p>
+          
+          <div className="mb-8 text-left">
+            <label className="block text-sm font-medium text-slate-300 mb-2">Select Target Role</label>
+            <select 
+              value={role} 
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+            >
+              <option value="Data Analyst">Data Analyst</option>
+              <option value="Software Engineer">Software Engineer</option>
+              <option value="Product Manager">Product Manager</option>
+              <option value="Frontend Developer">Frontend Developer</option>
+              <option value="Backend Developer">Backend Developer</option>
+            </select>
+          </div>
           
           <button onClick={requestMedia} disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-full transition-all flex items-center justify-center gap-2">
             {loading ? <Loader2 className="animate-spin" size={18} /> : <Video size={18} />}
-            {loading ? "Connecting..." : "Enable Camera & Mic"}
+            {loading ? "Connecting..." : "Start Interview (Camera & Mic)"}
           </button>
           
           <button onClick={() => navigate(-1)} className="w-full mt-4 bg-transparent hover:bg-slate-800 text-slate-300 font-medium py-3 px-6 rounded-full transition-all text-sm">
