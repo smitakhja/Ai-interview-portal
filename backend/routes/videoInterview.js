@@ -6,7 +6,6 @@ dotenv.config();
 
 const router = Router();
 
-// Safely initialize OpenAI only if the key exists to prevent crashing if it's not set yet
 let openai;
 try {
   if (process.env.OPENAI_API_KEY) {
@@ -16,84 +15,119 @@ try {
   console.warn("OpenAI API key not configured or invalid.");
 }
 
-// POST /api/video-interview/generate-questions
-router.post("/generate-questions", async (req, res) => {
-  const { role = "Software Engineer", experience = "Entry Level", count = 5 } = req.body;
+// POST /api/video-interview/start-chat
+// Initializes the interview context and generates the first question
+router.post("/start-chat", async (req, res) => {
+  const { role = "Data Analyst", topic = "General" } = req.body;
   
   if (!openai) {
-    // Fallback if OpenAI isn't configured yet
     return res.json({
       success: true,
-      questions: [
-        { question: `Tell me about yourself and why you applied for the ${role} position.` },
-        { question: "What is your greatest technical strength?" },
-        { question: "Can you describe a challenging project you worked on?" },
-        { question: "How do you handle disagreements within a team?" },
-        { question: "Where do you see yourself in 5 years?" }
-      ].slice(0, count)
+      message: { role: "assistant", content: `Hello! Welcome to your AI interview for the ${role} position. Tell me about yourself.` },
+      history: [
+        { role: "system", content: "You are a professional HR and Technical interviewer." },
+        { role: "assistant", content: `Hello! Welcome to your AI interview for the ${role} position. Tell me about yourself.` }
+      ]
     });
   }
 
   try {
-    const prompt = `Generate ${count} interview questions for a ${experience} ${role}. Return ONLY a JSON object with a key "questions" containing an array of objects. Each object must have a key "question" (string).`;
+    const systemPrompt = `You are a Senior AI Interviewer named Nova. You are interviewing a candidate for a ${role} position.
+Your goal is to conduct a professional, realistic interview. 
+Keep your questions concise, just like a real conversation.
+Start the interview by introducing yourself, welcoming the candidate, and asking them to introduce themselves.`;
+
+    const history = [{ role: "system", content: systemPrompt }];
     
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Using mini for speed and cost-effectiveness in interviews
-      messages: [{ role: "system", content: "You are an expert technical interviewer." }, { role: "user", content: prompt }],
-      response_format: { type: "json_object" }
+      model: "gpt-4o-mini",
+      messages: history
     });
 
-    const content = JSON.parse(response.choices[0].message.content);
-    const questions = content.questions || [];
+    const aiMessage = response.choices[0].message;
+    history.push(aiMessage);
 
-    res.json({ success: true, questions });
+    res.json({ success: true, message: aiMessage, history });
   } catch (error) {
-    console.error("OpenAI generation error:", error);
-    res.status(500).json({ error: "Failed to generate questions using AI." });
+    console.error("OpenAI start error:", error);
+    res.status(500).json({ error: "Failed to start interview." });
   }
 });
 
-// POST /api/video-interview/analyze-answer
-router.post("/analyze-answer", async (req, res) => {
-  const { question, transcript } = req.body;
+// POST /api/video-interview/process-chat
+// Receives the user's transcript and the chat history. Grades the answer and generates the next follow-up question.
+router.post("/process-chat", async (req, res) => {
+  const { transcript, history, isFinal = false } = req.body;
 
-  if (!question || !transcript) {
-    return res.status(400).json({ error: "Question and transcript are required." });
+  if (!history || !Array.isArray(history)) {
+    return res.status(400).json({ error: "Conversation history is required." });
   }
 
+  // 1. Grade the user's latest answer
+  let score = 0;
+  let feedback = "Good answer.";
+  
+  if (openai && transcript) {
+    try {
+      const gradingPrompt = `
+        You are an expert interviewer. Grade the candidate's latest answer.
+        Latest Answer: "${transcript}"
+        
+        Analyze the answer and provide:
+        1. A score from 1-100 based on technical accuracy, communication, confidence, grammar, and vocabulary.
+        2. Constructive feedback in 2-3 sentences indicating strengths and weaknesses.
+        
+        Return ONLY a JSON object with keys: "score" (number) and "feedback" (string).
+      `;
+      
+      const gradeRes = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [{ role: "system", content: gradingPrompt }],
+        response_format: { type: "json_object" }
+      });
+      
+      const analysis = JSON.parse(gradeRes.choices[0].message.content);
+      score = analysis.score || 0;
+      feedback = analysis.feedback || "";
+    } catch (e) {
+      console.error("Grading failed:", e);
+    }
+  }
+
+  // Add user's answer to the conversation history
+  const updatedHistory = [...history, { role: "user", content: transcript || "No answer provided." }];
+
+  if (isFinal) {
+    // If the interview is over, we just return the score for the final answer and no new question.
+    return res.json({ success: true, score, feedback, history: updatedHistory });
+  }
+
+  // 2. Generate the next follow-up question
   if (!openai) {
-    // Basic fallback analyzer if no API key
-    const wordCount = transcript.split(" ").length;
-    let score = Math.min(100, wordCount * 2);
-    let feedback = score > 60 ? "Good answer, quite detailed." : "Try to provide more detail.";
-    return res.json({ success: true, score, feedback });
+    const fallbackMessage = { role: "assistant", content: "Interesting. Can you elaborate on that?" };
+    updatedHistory.push(fallbackMessage);
+    return res.json({ success: true, message: fallbackMessage, history: updatedHistory, score, feedback });
   }
 
   try {
-    const prompt = `
-      You are an expert technical interviewer grading a candidate's verbal response to an interview question.
-      
-      Question: "${question}"
-      Candidate's Answer Transcript: "${transcript}"
-      
-      Analyze the answer and provide:
-      1. A score from 1-100 based on technical accuracy, communication, and confidence.
-      2. Constructive feedback in 2-3 sentences.
-      
-      Return ONLY a JSON object with keys: "score" (number) and "feedback" (string).
-    `;
+    // We add a silent system prompt to guide the AI's next response without adding it to the visible history
+    const generationHistory = [...updatedHistory, { 
+      role: "system", 
+      content: "Acknowledge the user's previous answer briefly if necessary, and then ask ONE follow-up question. Do not repeat previous questions. Be concise and conversational." 
+    }];
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: [{ role: "system", content: "You are an expert technical interviewer." }, { role: "user", content: prompt }],
-      response_format: { type: "json_object" }
+      messages: generationHistory
     });
 
-    const analysis = JSON.parse(response.choices[0].message.content);
-    res.json({ success: true, ...analysis });
+    const aiMessage = response.choices[0].message;
+    updatedHistory.push(aiMessage);
+
+    res.json({ success: true, message: aiMessage, history: updatedHistory, score, feedback });
   } catch (error) {
-    console.error("OpenAI analysis error:", error);
-    res.status(500).json({ error: "Failed to analyze answer using AI." });
+    console.error("OpenAI follow-up error:", error);
+    res.status(500).json({ error: "Failed to generate follow-up." });
   }
 });
 

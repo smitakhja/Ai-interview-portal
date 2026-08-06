@@ -21,15 +21,16 @@ export default function VideoInterview() {
   const [recordedChunks, setRecordedChunks] = useState([]);
   const [videoUrl, setVideoUrl] = useState(null);
 
-  // Phase 2/3: Speech & Logic State
-  const [questions, setQuestions] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(-1);
-  const currentIndexRef = useRef(-1);
+  // Phase 2/3: Conversational Logic State
+  const [history, setHistory] = useState([]);
+  const [turnCount, setTurnCount] = useState(0);
+  const [maxTurns] = useState(5);
   const [results, setResults] = useState([]);
+  
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
   const [isUserSpeaking, setIsUserSpeaking] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [aiText, setAiText] = useState("Welcome to your AI Interview. I am your virtual interviewer. Let's begin.");
+  const [aiText, setAiText] = useState("Connecting to AI...");
   const [isProcessingAnswer, setIsProcessingAnswer] = useState(false);
   
   const recognitionRef = useRef(null);
@@ -77,11 +78,6 @@ export default function VideoInterview() {
     };
   }, [stream]);
 
-  // Keep ref in sync for closures
-  useEffect(() => {
-    currentIndexRef.current = currentIndex;
-  }, [currentIndex]);
-
   // Phase 2: Speech Synthesis (AI Voice)
   const speak = (text) => {
     window.speechSynthesis.cancel();
@@ -98,12 +94,7 @@ export default function VideoInterview() {
     
     utterance.onend = () => {
       setIsAiSpeaking(false);
-      // If we just finished the intro, go immediately to the first question
-      if (currentIndexRef.current === -1) {
-        setCurrentIndex(0);
-      } else {
-        startListening(); // AI finished, start listening to user
-      }
+      startListening(); // AI finished, start listening to user
     };
     
     window.speechSynthesis.speak(utterance);
@@ -171,29 +162,41 @@ export default function VideoInterview() {
     stopListening();
     setIsProcessingAnswer(true);
     
-    const currentQ = questions[currentIndex];
-    
-    if (currentIndex >= 0 && currentQ) {
-      try {
-        const res = await api.post("/video-interview/analyze-answer", {
-          question: currentQ.question,
-          transcript: fullTranscriptRef.current || transcript || "No answer provided.",
-        });
-        setResults(prev => [...prev, { ...res.data, question: currentQ.question }]);
-      } catch (err) {
-        console.error("Failed to analyze answer:", err);
+    const isFinal = turnCount >= maxTurns - 1;
+
+    try {
+      const res = await api.post("/video-interview/process-chat", {
+        transcript: fullTranscriptRef.current || transcript || "No answer provided.",
+        history: history,
+        isFinal
+      });
+      
+      setHistory(res.data.history || []);
+      
+      // Save results
+      if (res.data.score) {
+        // Find the last question the AI asked
+        const lastAiMessage = history.filter(m => m.role === "assistant").pop();
+        setResults(prev => [...prev, { 
+          score: res.data.score, 
+          feedback: res.data.feedback, 
+          question: lastAiMessage ? lastAiMessage.content : "Introduction" 
+        }]);
       }
+
+      if (!isFinal && res.data.message) {
+        setTurnCount(prev => prev + 1);
+        speak(res.data.message.content);
+      } else {
+        endInterview();
+      }
+    } catch (err) {
+      console.error("Failed to process answer:", err);
     }
     
     fullTranscriptRef.current = "";
     setTranscript("");
     setIsProcessingAnswer(false);
-
-    if (currentIndex + 1 < questions.length) {
-      setCurrentIndex(prev => prev + 1);
-    } else {
-      endInterview();
-    }
   };
 
   // Silence Detection
@@ -205,14 +208,17 @@ export default function VideoInterview() {
     }, 5000);
   };
 
-  // Fetch Questions when stage changes to interview
+  // Start Chat when stage changes to interview
   useEffect(() => {
     if (stage === "interview") {
-      api.post("/video-interview/generate-questions", { role: targetRole, count: 5 })
+      api.post("/video-interview/start-chat", { role: targetRole })
         .then(res => {
-          setQuestions(res.data.questions || []);
+          setHistory(res.data.history || []);
+          setTimeout(() => {
+            speak(res.data.message.content);
+          }, 1000);
         })
-        .catch(err => console.error("Failed to load questions", err));
+        .catch(err => console.error("Failed to start chat", err));
 
       // Start Recording
       if (stream && !mediaRecorderRef.current) {
@@ -233,19 +239,9 @@ export default function VideoInterview() {
         }
       }
 
-      // Small delay for UI to render welcome message
-      setTimeout(() => {
-        speak(aiText);
-      }, 1000);
+      // We no longer manually speak after a timeout here, because the API /start-chat returns the first message and speaks it.
     }
   }, [stage, stream]);
-
-  // Read out the current question whenever currentIndex changes
-  useEffect(() => {
-    if (currentIndex >= 0 && questions[currentIndex]) {
-      speak(questions[currentIndex].question);
-    }
-  }, [currentIndex, questions]);
 
   const toggleMic = () => {
     if (stream) {
@@ -402,7 +398,7 @@ export default function VideoInterview() {
         </div>
         <div className="flex items-center gap-2">
           <div className="bg-slate-800 px-3 py-1 rounded-full text-xs font-medium text-slate-300 border border-slate-700">
-            {currentIndex >= 0 ? `Question ${currentIndex + 1} / ${questions.length}` : "Intro"}
+            {turnCount === 0 ? "Intro" : `Question ${turnCount} / ${maxTurns}`}
           </div>
         </div>
       </header>
