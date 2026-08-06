@@ -66,46 +66,51 @@ function VideoModal({ video, company, onClose }) {
   if (!video) return null;
   return (
     <AnimatePresence>
-      <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <motion.div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
         <motion.div className="absolute inset-0 bg-ink/60 backdrop-blur-sm" onClick={onClose} initial={{ opacity: 0 }} animate={{ opacity: 1 }} />
-        <motion.div className="relative z-10 w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-surface rounded-xl sm:rounded-2xl shadow-card overflow-hidden" initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 260, damping: 22 }}>
-          <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-border" style={{ background: company ? company.bg + "88" : "#EAF0FF" }}>
-            <div className="flex items-center gap-3">
-              <img src={company?.logo} alt={company?.name} className="h-5 w-auto max-w-[80px] object-contain" referrerPolicy="no-referrer" />
-              <div>
-                <p className="font-display font-bold text-ink text-sm">{company?.name}</p>
-                <p className="text-xs text-ink-soft">{video.title}</p>
+        <motion.div className="relative z-10 w-full sm:max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto bg-surface rounded-t-2xl sm:rounded-2xl shadow-card" initial={{ scale: 0.95, opacity: 0, y: 40 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 260, damping: 22 }}>
+          {/* Modal header */}
+          <div className="sticky top-0 z-20 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-border" style={{ background: company ? company.bg + "EE" : "#EAF0FFEE" }}>
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <img src={company?.logo} alt={company?.name} className="h-4 sm:h-5 w-auto max-w-[60px] sm:max-w-[80px] object-contain shrink-0" referrerPolicy="no-referrer" />
+              <div className="min-w-0">
+                <p className="font-display font-bold text-ink text-xs sm:text-sm">{company?.name}</p>
+                <p className="text-[11px] sm:text-xs text-ink-soft truncate">{video.title}</p>
               </div>
             </div>
-            <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/70 border border-border flex items-center justify-center text-ink-soft hover:text-ink transition-colors"><X size={15} /></button>
+            <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/70 border border-border flex items-center justify-center text-ink-soft hover:text-ink transition-colors shrink-0 ml-2"><X size={15} /></button>
           </div>
-          <div className="flex border-b border-border px-6">
+          {/* Tab bar */}
+          <div className="flex border-b border-border px-3 sm:px-6 overflow-x-auto">
             {["video", "questions"].map((t) => (
-              <button key={t} onClick={() => setTab(t)} className={`py-3 px-4 text-sm font-semibold capitalize transition-colors border-b-2 -mb-px ${tab === t ? "border-primary text-primary" : "border-transparent text-ink-soft hover:text-ink"}`}>
-                {t === "video" ? "▶ Watch Interview" : "📋 Questions Asked"}
+              <button key={t} onClick={() => setTab(t)} className={`py-2.5 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold capitalize transition-colors border-b-2 -mb-px whitespace-nowrap ${tab === t ? "border-primary text-primary" : "border-transparent text-ink-soft hover:text-ink"}`}>
+                {t === "video" ? "▶ Watch" : "📋 Questions"}
               </button>
             ))}
           </div>
-          <div className="p-4 sm:p-6">
+          {/* Modal body */}
+          <div className="p-3 sm:p-6">
             {tab === "video" ? (
-              <div className="space-y-4">
-                <div className="relative w-full rounded-xl overflow-hidden bg-ink" style={{ paddingBottom: "56.25%" }}>
+              <div className="space-y-3 sm:space-y-4">
+                <div className="relative w-full rounded-lg sm:rounded-xl overflow-hidden bg-ink" style={{ paddingBottom: "56.25%" }}>
                   <iframe className="absolute inset-0 w-full h-full" src={`https://www.youtube.com/embed/${video.youtubeId}?rel=0&modestbranding=1`} title={video.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
                 </div>
-                <div className="flex flex-wrap gap-2 items-center">
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${DIFF_COLOR[video.difficulty]?.bg} ${DIFF_COLOR[video.difficulty]?.text}`}>{video.difficulty}</span>
-                  {video.tags.map((t) => (<span key={t} className="text-xs px-2.5 py-1 rounded-full bg-paper border border-border text-ink-soft">{t}</span>))}
-                  <span className="ml-auto flex items-center gap-1 text-xs text-ink-faint"><Clock size={12} /> {video.duration}</span>
-                  <span className="flex items-center gap-1 text-xs text-ink-faint"><Users size={12} /> {video.views} views</span>
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 items-center">
+                  <span className={`text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full ${DIFF_COLOR[video.difficulty]?.bg} ${DIFF_COLOR[video.difficulty]?.text}`}>{video.difficulty}</span>
+                  {video.tags.map((t) => (<span key={t} className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-paper border border-border text-ink-soft">{t}</span>))}
+                </div>
+                <div className="flex items-center gap-3 text-[10px] sm:text-xs text-ink-faint">
+                  <span className="flex items-center gap-1"><Clock size={11} /> {video.duration}</span>
+                  <span className="flex items-center gap-1"><Users size={11} /> {video.views} views</span>
                 </div>
                 <a href={`https://www.youtube.com/watch?v=${video.youtubeId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"><ExternalLink size={12} /> Open on YouTube</a>
               </div>
             ) : (
-              <motion.ul className="space-y-3" variants={stagger} initial="hidden" animate="show">
+              <motion.ul className="space-y-2 sm:space-y-3" variants={stagger} initial="hidden" animate="show">
                 {video.questions.map((q, idx) => (
-                  <motion.li key={idx} variants={cardAnim} className="flex items-start gap-3 bg-paper border border-border rounded-xl p-4">
-                    <div className="w-7 h-7 rounded-full bg-primary-soft text-primary flex items-center justify-center shrink-0 font-display font-bold text-xs mt-0.5">{idx + 1}</div>
-                    <p className="text-sm text-ink">{q}</p>
+                  <motion.li key={idx} variants={cardAnim} className="flex items-start gap-2 sm:gap-3 bg-paper border border-border rounded-lg sm:rounded-xl p-3 sm:p-4">
+                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-primary-soft text-primary flex items-center justify-center shrink-0 font-display font-bold text-[10px] sm:text-xs mt-0.5">{idx + 1}</div>
+                    <p className="text-xs sm:text-sm text-ink">{q}</p>
                   </motion.li>
                 ))}
               </motion.ul>
@@ -149,13 +154,13 @@ function VideoCard({ video, company, onOpen }) {
 
   return (
     <motion.div variants={cardAnim} whileHover={{ y: -4 }} onHoverStart={() => setHovered(true)} onHoverEnd={() => setHovered(false)} className="card overflow-hidden cursor-pointer group transition-shadow hover:shadow-card" onClick={() => onOpen(video)}>
-      <div className="relative overflow-hidden bg-ink" style={{ paddingBottom: "52%" }}>
+      <div className="relative overflow-hidden bg-ink" style={{ paddingBottom: "56%" }}>
         {thumbFailed ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ background: `linear-gradient(135deg, ${company?.color || '#3457D5'}22, ${company?.color || '#3457D5'}44)` }}>
-            <div className="w-16 h-16 rounded-full bg-white/15 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center mb-2">
-              <Play size={26} className="text-white/80 ml-1" />
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/15 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center mb-2">
+              <Play size={20} className="text-white/80 ml-0.5 sm:ml-1" />
             </div>
-            <p className="text-white/60 text-xs font-semibold">{company?.name} Interview</p>
+            <p className="text-white/60 text-[10px] sm:text-xs font-semibold">{company?.name} Interview</p>
           </div>
         ) : (
           <img
@@ -168,20 +173,20 @@ function VideoCard({ video, company, onOpen }) {
           />
         )}
         <div className={`absolute inset-0 bg-ink/40 flex items-center justify-center transition-opacity duration-300 ${hovered ? "opacity-100" : "opacity-0"}`}>
-          <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white/60 flex items-center justify-center"><Play size={22} className="text-white ml-1" /></div>
+          <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white/60 flex items-center justify-center"><Play size={18} className="text-white ml-0.5" /></div>
         </div>
-        <span className="absolute bottom-2 right-2 bg-ink/80 text-white text-xs font-mono px-2 py-0.5 rounded">{video.duration}</span>
-        <span className="absolute top-2 left-2 flex items-center gap-1.5 bg-white/90 backdrop-blur-sm text-ink text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-soft"><img src={company?.logo} alt={company?.name} className="h-3.5 w-auto max-w-[56px] object-contain" referrerPolicy="no-referrer" /></span>
+        <span className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 bg-ink/80 text-white text-[10px] sm:text-xs font-mono px-1.5 sm:px-2 py-0.5 rounded">{video.duration}</span>
+        <span className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 flex items-center gap-1 sm:gap-1.5 bg-white/90 backdrop-blur-sm text-ink text-[10px] sm:text-xs font-semibold px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full shadow-soft"><img src={company?.logo} alt={company?.name} className="h-3 sm:h-3.5 w-auto max-w-[40px] sm:max-w-[56px] object-contain" referrerPolicy="no-referrer" /></span>
       </div>
-      <div className="p-4">
-        <p className="font-semibold text-ink text-sm leading-tight line-clamp-2 mb-3">{video.title}</p>
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${diff.bg} ${diff.text}`}>{video.difficulty}</span>
-          {video.tags.slice(0, 2).map((t) => (<span key={t} className="text-xs px-2 py-0.5 rounded-full bg-paper border border-border text-ink-faint">{t}</span>))}
+      <div className="p-3 sm:p-4">
+        <p className="font-semibold text-ink text-xs sm:text-sm leading-tight line-clamp-2 mb-2 sm:mb-3">{video.title}</p>
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+          <span className={`text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full ${diff.bg} ${diff.text}`}>{video.difficulty}</span>
+          {video.tags.slice(0, 2).map((t) => (<span key={t} className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full bg-paper border border-border text-ink-faint">{t}</span>))}
         </div>
-        <div className="mt-3 flex items-center gap-4 text-xs text-ink-faint">
-          <span className="flex items-center gap-1"><Users size={11} /> {video.views}</span>
-          <span className="flex items-center gap-1"><BookOpen size={11} /> {video.questions.length} Qs</span>
+        <div className="mt-2 sm:mt-3 flex items-center gap-3 sm:gap-4 text-[10px] sm:text-xs text-ink-faint">
+          <span className="flex items-center gap-1"><Users size={10} /> {video.views}</span>
+          <span className="flex items-center gap-1"><BookOpen size={10} /> {video.questions.length} Qs</span>
         </div>
       </div>
     </motion.div>
@@ -191,17 +196,17 @@ function VideoCard({ video, company, onOpen }) {
 function CompanyCard({ company, selected, onClick }) {
   const count = VIDEOS.filter((v) => v.company === company.id).length;
   return (
-    <motion.button whileHover={{ y: -2, scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={onClick} className={`card p-4 text-left transition-all w-full ${selected ? "ring-2 shadow-card -translate-y-0.5" : "hover:shadow-card"}`} style={selected ? { "--tw-ring-color": company.color } : {}}>
-      <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 p-2" style={{ background: company.bg }}><img src={company.logo} alt={company.name} className="max-h-full max-w-full object-contain" referrerPolicy="no-referrer" /></div>
+    <motion.button whileHover={{ y: -2, scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={onClick} className={`card p-2.5 sm:p-4 text-left transition-all w-full ${selected ? "ring-2 shadow-card -translate-y-0.5" : "hover:shadow-card"}`} style={selected ? { "--tw-ring-color": company.color } : {}}>
+      <div className="flex items-start gap-2 sm:gap-3">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 p-1.5 sm:p-2" style={{ background: company.bg }}><img src={company.logo} alt={company.name} className="max-h-full max-w-full object-contain" referrerPolicy="no-referrer" /></div>
         <div className="min-w-0">
-          <p className="font-semibold text-ink text-sm">{company.name}</p>
-          <p className="text-xs text-ink-faint mt-0.5">{count} video{count !== 1 ? "s" : ""}</p>
+          <p className="font-semibold text-ink text-xs sm:text-sm truncate">{company.name}</p>
+          <p className="text-[10px] sm:text-xs text-ink-faint mt-0.5">{count} video{count !== 1 ? "s" : ""}</p>
         </div>
       </div>
-      <div className="mt-3 flex flex-wrap gap-1">
-        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${DIFF_COLOR[company.difficulty]?.bg} ${DIFF_COLOR[company.difficulty]?.text}`}>{company.difficulty}</span>
-        <span className="text-xs px-2 py-0.5 rounded-full bg-paper border border-border text-ink-faint">{company.rounds} rounds</span>
+      <div className="mt-2 sm:mt-3 flex flex-wrap gap-1">
+        <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full font-semibold ${DIFF_COLOR[company.difficulty]?.bg} ${DIFF_COLOR[company.difficulty]?.text}`}>{company.difficulty}</span>
+        <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full bg-paper border border-border text-ink-faint">{company.rounds} rounds</span>
       </div>
     </motion.button>
   );
@@ -237,66 +242,69 @@ export default function CompanyInterviews() {
     <PageShell>
       <Breadcrumb trail={[{ label: "Home", to: "/" }, { label: "Dashboard", to: "/dashboard" }, { label: "Company Interview Videos" }]} />
 
-      <motion.div className="mb-10" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <div className="inline-flex items-center gap-2 bg-lavender-soft border border-lavender/20 rounded-full px-4 py-1.5 text-xs font-semibold text-lavender mb-4">
-          <TrendingUp size={13} /> Real Company Interview Videos
+      <motion.div className="mb-6 sm:mb-10" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+        <div className="inline-flex items-center gap-2 bg-lavender-soft border border-lavender/20 rounded-full px-3 sm:px-4 py-1 sm:py-1.5 text-[10px] sm:text-xs font-semibold text-lavender mb-3 sm:mb-4">
+          <TrendingUp size={12} /> Real Company Interview Videos
         </div>
-        <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-ink leading-tight">
+        <h1 className="font-display text-xl sm:text-3xl md:text-4xl font-bold text-ink leading-tight">
           How companies actually <span className="text-primary">interview</span>
         </h1>
-        <p className="text-ink-soft mt-2 max-w-xl">Watch real mock interviews, learn the questions asked at top companies, and prepare smarter with curated video resources.</p>
-        <div className="flex flex-wrap gap-6 mt-6">
-          {[{ icon: Building2, val: COMPANIES.length, label: "Companies" }, { icon: Play, val: VIDEOS.length, label: "Interview videos" }, { icon: BookOpen, val: VIDEOS.reduce((s, v) => s + v.questions.length, 0), label: "Questions" }].map(({ icon: Icon, val, label }) => (
-            <div key={label} className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-full bg-white border border-border flex items-center justify-center text-primary shadow-soft"><Icon size={15} /></div>
-              <div><p className="font-display font-bold text-ink leading-none">{val}+</p><p className="text-xs text-ink-soft mt-0.5">{label}</p></div>
+        <p className="text-sm sm:text-base text-ink-soft mt-2 max-w-xl">Watch real mock interviews, learn the questions asked at top companies, and prepare smarter with curated video resources.</p>
+        <div className="flex flex-wrap gap-4 sm:gap-6 mt-4 sm:mt-6">
+          {[{ icon: Building2, val: COMPANIES.length, label: "Companies" }, { icon: Play, val: VIDEOS.length, label: "Videos" }, { icon: BookOpen, val: VIDEOS.reduce((s, v) => s + v.questions.length, 0), label: "Questions" }].map(({ icon: Icon, val, label }) => (
+            <div key={label} className="flex items-center gap-2">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-border flex items-center justify-center text-primary shadow-soft"><Icon size={14} /></div>
+              <div><p className="font-display font-bold text-ink text-sm sm:text-base leading-none">{val}+</p><p className="text-[10px] sm:text-xs text-ink-soft mt-0.5">{label}</p></div>
             </div>
           ))}
         </div>
       </motion.div>
 
-      <div className="mb-10">
-        <p className="text-xs font-semibold uppercase tracking-widest text-ink-faint mb-4 flex items-center gap-1.5"><Building2 size={12} /> Select a company</p>
+      <div className="mb-6 sm:mb-10">
+        <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-ink-faint mb-3 sm:mb-4 flex items-center gap-1.5"><Building2 size={12} /> Select a company</p>
         <motion.div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3" variants={stagger} initial="hidden" animate="show">
           {COMPANIES.map((c) => (<CompanyCard key={c.id} company={c} selected={selectedCompany === c.id} onClick={() => handleCompanyClick(c.id)} />))}
         </motion.div>
         <AnimatePresence>
           {selectedCompanyData && (
-            <motion.div key={selectedCompanyData.id} initial={{ opacity: 0, height: 0, marginTop: 0 }} animate={{ opacity: 1, height: "auto", marginTop: 16 }} exit={{ opacity: 0, height: 0, marginTop: 0 }} className="overflow-hidden">
-              <div className="rounded-xl border p-4 flex items-start gap-3" style={{ background: selectedCompanyData.bg, borderColor: selectedCompanyData.color + "30" }}>
-                <img src={selectedCompanyData.logo} alt={selectedCompanyData.name} className="h-6 w-auto max-w-[90px] object-contain" referrerPolicy="no-referrer" />
-                <div>
-                  <p className="font-semibold text-ink">{selectedCompanyData.name} Interview</p>
-                  <p className="text-sm text-ink-soft mt-0.5">{selectedCompanyData.desc}</p>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {selectedCompanyData.roles.map((r) => (<span key={r} className="text-xs px-2 py-0.5 rounded-full bg-white/70 border border-border text-ink-soft">{r}</span>))}
+            <motion.div key={selectedCompanyData.id} initial={{ opacity: 0, height: 0, marginTop: 0 }} animate={{ opacity: 1, height: "auto", marginTop: 12 }} exit={{ opacity: 0, height: 0, marginTop: 0 }} className="overflow-hidden">
+              <div className="rounded-xl border p-3 sm:p-4 flex flex-col sm:flex-row items-start gap-2 sm:gap-3" style={{ background: selectedCompanyData.bg, borderColor: selectedCompanyData.color + "30" }}>
+                <div className="flex items-center gap-2 sm:block">
+                  <img src={selectedCompanyData.logo} alt={selectedCompanyData.name} className="h-5 sm:h-6 w-auto max-w-[70px] sm:max-w-[90px] object-contain" referrerPolicy="no-referrer" />
+                  <button onClick={() => setSelectedCompany(null)} className="sm:hidden ml-auto text-ink-faint hover:text-ink"><X size={14} /></button>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-ink text-sm sm:text-base">{selectedCompanyData.name} Interview</p>
+                  <p className="text-xs sm:text-sm text-ink-soft mt-0.5">{selectedCompanyData.desc}</p>
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2">
+                    {selectedCompanyData.roles.map((r) => (<span key={r} className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full bg-white/70 border border-border text-ink-soft">{r}</span>))}
                   </div>
                 </div>
-                <button onClick={() => setSelectedCompany(null)} className="ml-auto text-ink-faint hover:text-ink"><X size={14} /></button>
+                <button onClick={() => setSelectedCompany(null)} className="hidden sm:block ml-auto text-ink-faint hover:text-ink shrink-0"><X size={14} /></button>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      <div ref={videoSectionRef} className="mb-6 flex flex-col sm:flex-row flex-wrap gap-3 items-stretch sm:items-center">
-        <div className="relative flex-1 min-w-0 sm:min-w-56 sm:max-w-sm">
+      <div ref={videoSectionRef} className="mb-4 sm:mb-6 space-y-3">
+        {/* Search bar */}
+        <div className="relative w-full sm:max-w-sm">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint" />
-          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search videos, tags, questions..." className="w-full bg-white border border-border rounded-full pl-9 pr-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-primary/30 shadow-soft" />
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search videos, tags, questions..." className="w-full bg-white border border-border rounded-full pl-9 pr-4 py-2 sm:py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-primary/30 shadow-soft" />
           {search && (<button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink"><X size={13} /></button>)}
         </div>
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
-          <div className="flex items-center gap-1.5 bg-white border border-border rounded-full px-3 py-2 shadow-soft shrink-0">
-          <Filter size={13} className="text-ink-faint" />
-          {diffs.map((d) => (<button key={d} onClick={() => setDiffFilter(d)} className={`text-xs font-semibold px-2.5 py-1 rounded-full transition-colors ${diffFilter === d ? "bg-primary text-white" : "text-ink-soft hover:text-ink"}`}>{d}</button>))}
+        {/* Difficulty filter + Tag filter - horizontally scrollable row */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+          <div className="flex items-center gap-1 sm:gap-1.5 bg-white border border-border rounded-full px-2.5 sm:px-3 py-1.5 sm:py-2 shadow-soft shrink-0">
+            <Filter size={12} className="text-ink-faint" />
+            {diffs.map((d) => (<button key={d} onClick={() => setDiffFilter(d)} className={`text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full transition-colors whitespace-nowrap ${diffFilter === d ? "bg-primary text-white" : "text-ink-soft hover:text-ink"}`}>{d}</button>))}
           </div>
-        <div className="flex items-center gap-1.5 overflow-x-auto">
-          {allTags.slice(0, 9).map((t) => (
-            <button key={t} onClick={() => setTagFilter(t)} className={`shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${tagFilter === t ? "bg-primary-soft border-primary/20 text-primary" : "bg-white border-border text-ink-soft hover:text-ink"}`}>
-              {t !== "All" && <Tag size={10} />} {t}
+          {allTags.slice(0, 7).map((t) => (
+            <button key={t} onClick={() => setTagFilter(t)} className={`shrink-0 flex items-center gap-1 text-[10px] sm:text-xs font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border transition-all whitespace-nowrap ${tagFilter === t ? "bg-primary-soft border-primary/20 text-primary" : "bg-white border-border text-ink-soft hover:text-ink"}`}>
+              {t !== "All" && <Tag size={9} />} {t}
             </button>
           ))}
-        </div>
         </div>
       </div>
 
@@ -310,7 +318,7 @@ export default function CompanyInterviews() {
           <button onClick={() => { setSearch(""); setDiffFilter("All"); setTagFilter("All"); setSelectedCompany(null); }} className="btn-secondary mt-6 text-sm">Clear all filters</button>
         </motion.div>
       ) : (
-        <motion.div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" variants={stagger} initial="hidden" animate="show" key={`${selectedCompany}-${search}-${diffFilter}-${tagFilter}`}>
+        <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5" variants={stagger} initial="hidden" animate="show" key={`${selectedCompany}-${search}-${diffFilter}-${tagFilter}`}>
           {filteredVideos.map((v) => (<VideoCard key={v.id} video={v} company={COMPANIES.find((c) => c.id === v.company)} onOpen={setActiveVideo} />))}
         </motion.div>
       )}
