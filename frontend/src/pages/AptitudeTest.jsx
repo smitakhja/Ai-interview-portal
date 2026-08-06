@@ -48,8 +48,8 @@ export default function AptitudeTest() {
             <div className="w-14 h-14 rounded-full bg-amber-soft text-amber flex items-center justify-center mb-5">
               <BrainCircuit size={24} />
             </div>
-            <h1 className="font-display text-3xl font-bold text-ink mb-2">Aptitude Test</h1>
-            <p className="text-ink-soft mb-8">
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink mb-2">Aptitude Test</h1>
+            <p className="text-sm sm:text-base text-ink-soft mb-6 sm:mb-8">
               8 quick questions across quantitative, logical, and verbal reasoning. No time pressure — take your time.
             </p>
             <button onClick={start} disabled={loading} className="btn-primary bg-amber hover:bg-amber">

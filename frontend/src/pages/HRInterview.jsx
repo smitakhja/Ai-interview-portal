@@ -59,8 +59,8 @@ export default function HRInterview() {
             <div className="w-14 h-14 rounded-full bg-coral-soft text-coral flex items-center justify-center mb-5">
               <Users size={24} />
             </div>
-            <h1 className="font-display text-3xl font-bold text-ink mb-2">HR Interview</h1>
-            <p className="text-ink-soft mb-8">Practice common behavioral questions. Each comes with a tip before you answer.</p>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink mb-2">HR Interview</h1>
+            <p className="text-sm sm:text-base text-ink-soft mb-6 sm:mb-8">Practice common behavioral questions. Each comes with a tip before you answer.</p>
             <button onClick={start} disabled={loading} className="btn-primary bg-coral hover:bg-coral">
               {loading ? <Loader2 size={18} className="animate-spin" /> : <Users size={18} />}
               Start HR round

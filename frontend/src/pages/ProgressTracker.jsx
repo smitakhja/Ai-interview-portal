@@ -20,8 +20,8 @@ export default function ProgressTracker() {
     <PageShell>
       <Breadcrumb trail={[{ label: "Home", to: "/" }, { label: "Dashboard", to: "/dashboard" }, { label: "Progress Tracker" }]} />
 
-      <h1 className="font-display text-3xl font-bold text-ink mb-2">Progress Tracker</h1>
-      <p className="text-ink-soft mb-8">See how your readiness is building across every module.</p>
+      <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink mb-2">Progress Tracker</h1>
+      <p className="text-sm sm:text-base text-ink-soft mb-6 sm:mb-8">See how your readiness is building across every module.</p>
 
       <div className="grid lg:grid-cols-[280px_1fr] gap-8">
         <div className="card p-8 flex flex-col items-center h-fit">

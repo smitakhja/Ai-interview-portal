@@ -30,9 +30,9 @@ export default function Dashboard() {
     <PageShell>
       <Breadcrumb trail={[{ label: "Home", to: "/" }, { label: "Dashboard" }]} />
 
-      <div className="flex flex-wrap items-end justify-between gap-4 mb-10">
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-6 sm:mb-10">
         <div>
-          <h1 className="font-display text-3xl font-bold text-ink">Your prep hub</h1>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink">Your prep hub</h1>
           <p className="text-ink-soft mt-1">Pick a module to continue building your readiness.</p>
         </div>
       </div>

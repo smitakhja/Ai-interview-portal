@@ -42,8 +42,8 @@ export default function ResumeAnalyzer() {
 
       <div className="grid lg:grid-cols-2 gap-8">
         <div>
-          <h1 className="font-display text-3xl font-bold text-ink mb-2">Resume & Photo Analyzer</h1>
-          <p className="text-ink-soft mb-8">Upload a PDF, TXT, or image/photo (PNG, JPG, WEBP) to extract text via OCR and analyze key skills.</p>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink mb-2">Resume & Photo Analyzer</h1>
+          <p className="text-sm sm:text-base text-ink-soft mb-6 sm:mb-8">Upload a PDF, TXT, or image/photo (PNG, JPG, WEBP) to extract text via OCR and analyze key skills.</p>
 
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -57,7 +57,7 @@ export default function ResumeAnalyzer() {
                 setFile(f);
               }
             }}
-            className="card border-dashed border-2 border-primary/30 p-8 flex flex-col items-center text-center cursor-pointer hover:border-primary/60 hover:bg-primary-soft/40 transition-colors"
+            className="card border-dashed border-2 border-primary/30 p-5 sm:p-8 flex flex-col items-center text-center cursor-pointer hover:border-primary/60 hover:bg-primary-soft/40 transition-colors"
           >
             <input
               ref={inputRef}
@@ -111,7 +111,7 @@ export default function ResumeAnalyzer() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="card p-8"
+                className="card p-5 sm:p-8"
               >
                 <div className="flex items-center gap-5 mb-6">
                   <ScoreCircle value={result.score} />

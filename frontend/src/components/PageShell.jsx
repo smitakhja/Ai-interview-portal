@@ -7,7 +7,7 @@ export default function PageShell({ children, className = "" }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -16 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className={`max-w-7xl mx-auto px-6 py-10 relative ${className}`}
+      className={`max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 relative ${className}`}
     >
       {children}
     </motion.main>

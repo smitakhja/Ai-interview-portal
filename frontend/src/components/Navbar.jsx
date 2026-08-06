@@ -1,22 +1,30 @@
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Sparkles, Bell, User, LogOut } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, Bell, User, LogOut, Menu, X } from "lucide-react";
 import { COMPANY_LOGOS } from "../modules.js";
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const isHome = location.pathname === "/";
+  const [menuOpen, setMenuOpen] = useState(false);
 
   function handleLogout() {
     localStorage.removeItem("userId");
     navigate("/login");
   }
 
+  const navLinks = [
+    ["Dashboard", "/dashboard"],
+    ["Company Interviews", "/company-interviews"],
+    ["Progress", "/progress"],
+  ];
+
   return (
     <header className="sticky top-0 z-40">
       {/* Top Logo Slider */}
-      <div className="bg-white py-2 overflow-hidden flex whitespace-nowrap border-b border-border shadow-sm">
+      <div className="bg-white py-1.5 sm:py-2 overflow-hidden flex whitespace-nowrap border-b border-border shadow-sm">
         <motion.div 
           className="flex w-max items-center"
           animate={{ x: [0, -1000] }}
@@ -30,11 +38,11 @@ export default function Navbar() {
           }}
         >
           {[...COMPANY_LOGOS, ...COMPANY_LOGOS, ...COMPANY_LOGOS, ...COMPANY_LOGOS, ...COMPANY_LOGOS].map((company, i) => (
-            <div key={`${company.name}-${i}`} className="flex items-center justify-center px-6">
+            <div key={`${company.name}-${i}`} className="flex items-center justify-center px-4 sm:px-6">
               <img 
                 src={company.url} 
                 alt={`${company.name} logo`} 
-                className="max-w-[80px] h-4 object-contain opacity-90 hover:opacity-100 transition-opacity"
+                className="max-w-[60px] sm:max-w-[80px] h-3 sm:h-4 object-contain opacity-90 hover:opacity-100 transition-opacity"
                 onError={(e) => {
                   e.target.style.display = 'none';
                   e.target.nextSibling.style.display = 'block';
@@ -47,24 +55,21 @@ export default function Navbar() {
       </div>
 
       <div className="backdrop-blur-md bg-paper/80 border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 cursor-pointer">
           <motion.div
             whileHover={{ rotate: 15, scale: 1.1 }}
-            className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-soft"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary flex items-center justify-center shadow-soft"
           >
-            <Sparkles size={18} className="text-white" />
+            <Sparkles size={16} className="text-white sm:w-[18px] sm:h-[18px]" />
           </motion.div>
-          <span className="font-display text-lg font-bold tracking-tight text-ink">AI interview</span>
+          <span className="font-display text-base sm:text-lg font-bold tracking-tight text-ink">AI interview</span>
         </Link>
 
+        {/* Desktop nav */}
         {!isHome && (
           <nav className="hidden md:flex items-center gap-1 bg-white border border-border rounded-full px-1.5 py-1.5 shadow-soft">
-            {[
-              ["Dashboard", "/dashboard"],
-              ["Company Interviews", "/company-interviews"],
-              ["Progress", "/progress"],
-            ].map(([label, to]) => (
+            {navLinks.map(([label, to]) => (
               <Link
                 key={to}
                 to={to}
@@ -80,12 +85,12 @@ export default function Navbar() {
           </nav>
         )}
 
-        <div className="flex items-center gap-3">
-          <button className="w-9 h-9 rounded-full bg-white border border-border flex items-center justify-center text-ink-soft hover:text-primary hover:border-primary/30 transition-colors">
-            <Bell size={16} />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-border flex items-center justify-center text-ink-soft hover:text-primary hover:border-primary/30 transition-colors">
+            <Bell size={15} />
           </button>
           {localStorage.getItem("userId") ? (
-            <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
               <Link
                 to="/profile"
                 className="w-9 h-9 rounded-full bg-primary-soft border border-border flex items-center justify-center text-primary hover:shadow-glow transition-shadow"
@@ -101,7 +106,7 @@ export default function Navbar() {
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
               <Link to="/login" className="text-sm px-3 py-1.5 rounded-full bg-white border border-border text-ink-soft hover:text-ink">
                 Log in
               </Link>
@@ -110,9 +115,68 @@ export default function Navbar() {
               </Link>
             </div>
           )}
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-border flex items-center justify-center text-ink-soft hover:text-ink transition-colors"
+          >
+            {menuOpen ? <X size={16} /> : <Menu size={16} />}
+          </button>
         </div>
         </div>
       </div>
+
+      {/* Mobile slide-down menu */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="md:hidden overflow-hidden bg-surface border-b border-border shadow-lg"
+          >
+            <div className="px-4 py-4 space-y-2">
+              {navLinks.map(([label, to]) => (
+                <Link
+                  key={to}
+                  to={to}
+                  onClick={() => setMenuOpen(false)}
+                  className={`block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                    location.pathname === to
+                      ? "bg-primary-soft text-primary"
+                      : "text-ink-soft hover:text-ink hover:bg-paper"
+                  }`}
+                >
+                  {label}
+                </Link>
+              ))}
+              <div className="border-t border-border pt-3 mt-3 flex items-center gap-2">
+                {localStorage.getItem("userId") ? (
+                  <>
+                    <Link to="/profile" onClick={() => setMenuOpen(false)} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-primary-soft text-primary font-medium">
+                      Profile
+                    </Link>
+                    <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-white border border-border text-ink-soft font-medium">
+                      Log out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/login" onClick={() => setMenuOpen(false)} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-white border border-border text-ink-soft font-medium">
+                      Log in
+                    </Link>
+                    <Link to="/register" onClick={() => setMenuOpen(false)} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-primary text-white font-medium">
+                      Register
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

@@ -47,9 +47,9 @@ export default function TechnicalQuiz() {
       <AnimatePresence mode="wait">
         {stage === "select" && (
           <motion.div key="select" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <h1 className="font-display text-3xl font-bold text-ink mb-2">Technical Quiz</h1>
-            <p className="text-ink-soft mb-8">Pick a topic to test your fundamentals.</p>
-            <div className="grid sm:grid-cols-3 gap-4 max-w-2xl">
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink mb-2">Technical Quiz</h1>
+            <p className="text-sm sm:text-base text-ink-soft mb-6 sm:mb-8">Pick a topic to test your fundamentals.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-2xl">
               {(topics.length ? topics : ["javascript", "react", "sql"]).map((t) => (
                 <button
                   key={t}

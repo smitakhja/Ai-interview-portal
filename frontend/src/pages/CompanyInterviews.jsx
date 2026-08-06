@@ -68,8 +68,8 @@ function VideoModal({ video, company, onClose }) {
     <AnimatePresence>
       <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
         <motion.div className="absolute inset-0 bg-ink/60 backdrop-blur-sm" onClick={onClose} initial={{ opacity: 0 }} animate={{ opacity: 1 }} />
-        <motion.div className="relative z-10 w-full max-w-4xl bg-surface rounded-2xl shadow-card overflow-hidden" initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 260, damping: 22 }}>
-          <div className="px-6 py-4 flex items-center justify-between border-b border-border" style={{ background: company ? company.bg + "88" : "#EAF0FF" }}>
+        <motion.div className="relative z-10 w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-surface rounded-xl sm:rounded-2xl shadow-card overflow-hidden" initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 260, damping: 22 }}>
+          <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-border" style={{ background: company ? company.bg + "88" : "#EAF0FF" }}>
             <div className="flex items-center gap-3">
               <img src={company?.logo} alt={company?.name} className="h-5 w-auto max-w-[80px] object-contain" referrerPolicy="no-referrer" />
               <div>
@@ -86,7 +86,7 @@ function VideoModal({ video, company, onClose }) {
               </button>
             ))}
           </div>
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {tab === "video" ? (
               <div className="space-y-4">
                 <div className="relative w-full rounded-xl overflow-hidden bg-ink" style={{ paddingBottom: "56.25%" }}>
@@ -241,7 +241,7 @@ export default function CompanyInterviews() {
         <div className="inline-flex items-center gap-2 bg-lavender-soft border border-lavender/20 rounded-full px-4 py-1.5 text-xs font-semibold text-lavender mb-4">
           <TrendingUp size={13} /> Real Company Interview Videos
         </div>
-        <h1 className="font-display text-3xl md:text-4xl font-bold text-ink leading-tight">
+        <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-ink leading-tight">
           How companies actually <span className="text-primary">interview</span>
         </h1>
         <p className="text-ink-soft mt-2 max-w-xl">Watch real mock interviews, learn the questions asked at top companies, and prepare smarter with curated video resources.</p>
@@ -257,7 +257,7 @@ export default function CompanyInterviews() {
 
       <div className="mb-10">
         <p className="text-xs font-semibold uppercase tracking-widest text-ink-faint mb-4 flex items-center gap-1.5"><Building2 size={12} /> Select a company</p>
-        <motion.div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3" variants={stagger} initial="hidden" animate="show">
+        <motion.div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3" variants={stagger} initial="hidden" animate="show">
           {COMPANIES.map((c) => (<CompanyCard key={c.id} company={c} selected={selectedCompany === c.id} onClick={() => handleCompanyClick(c.id)} />))}
         </motion.div>
         <AnimatePresence>
@@ -279,22 +279,24 @@ export default function CompanyInterviews() {
         </AnimatePresence>
       </div>
 
-      <div ref={videoSectionRef} className="mb-6 flex flex-wrap gap-3 items-center">
-        <div className="relative flex-1 min-w-56 max-w-sm">
+      <div ref={videoSectionRef} className="mb-6 flex flex-col sm:flex-row flex-wrap gap-3 items-stretch sm:items-center">
+        <div className="relative flex-1 min-w-0 sm:min-w-56 sm:max-w-sm">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint" />
           <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search videos, tags, questions..." className="w-full bg-white border border-border rounded-full pl-9 pr-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-primary/30 shadow-soft" />
           {search && (<button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink"><X size={13} /></button>)}
         </div>
-        <div className="flex items-center gap-1.5 bg-white border border-border rounded-full px-3 py-2 shadow-soft">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
+          <div className="flex items-center gap-1.5 bg-white border border-border rounded-full px-3 py-2 shadow-soft shrink-0">
           <Filter size={13} className="text-ink-faint" />
           {diffs.map((d) => (<button key={d} onClick={() => setDiffFilter(d)} className={`text-xs font-semibold px-2.5 py-1 rounded-full transition-colors ${diffFilter === d ? "bg-primary text-white" : "text-ink-soft hover:text-ink"}`}>{d}</button>))}
-        </div>
+          </div>
         <div className="flex items-center gap-1.5 overflow-x-auto">
           {allTags.slice(0, 9).map((t) => (
             <button key={t} onClick={() => setTagFilter(t)} className={`shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${tagFilter === t ? "bg-primary-soft border-primary/20 text-primary" : "bg-white border-border text-ink-soft hover:text-ink"}`}>
               {t !== "All" && <Tag size={10} />} {t}
             </button>
           ))}
+        </div>
         </div>
       </div>
 

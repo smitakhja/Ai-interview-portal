@@ -33,7 +33,7 @@ export default function Home() {
     <div className="relative overflow-hidden">
       <AmbientBlobs />
 
-      <section className="max-w-7xl mx-auto px-6 pt-16 pb-16 grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-16 pb-10 sm:pb-16 grid lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-12 items-center">
         <motion.div variants={stagger} initial="hidden" animate="show">
           <motion.div
             variants={item}
@@ -44,7 +44,7 @@ export default function Home() {
 
           <motion.h1
             variants={item}
-            className="font-display text-5xl md:text-[64px] font-bold tracking-tight text-ink leading-[1.05]"
+            className="font-display text-3xl sm:text-5xl md:text-[64px] font-bold tracking-tight text-ink leading-[1.1] sm:leading-[1.05]"
           >
             Walk into every
             <br />
@@ -60,23 +60,23 @@ export default function Home() {
             </span>
           </motion.h1>
 
-          <motion.p variants={item} className="mt-6 text-lg text-ink-soft max-w-xl leading-relaxed">
+          <motion.p variants={item} className="mt-4 sm:mt-6 text-base sm:text-lg text-ink-soft max-w-xl leading-relaxed">
             Prepr reviews your resume, runs mock interviews, and quizzes you on
             technical, aptitude, and HR rounds — then tracks exactly how ready
             you are, module by module.
           </motion.p>
 
-          <motion.div variants={item} className="mt-10 flex flex-wrap items-center gap-4">
-            <Link to="/dashboard" className="btn-primary group text-base px-8 py-3.5">
+          <motion.div variants={item} className="mt-6 sm:mt-10 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4">
+            <Link to="/dashboard" className="btn-primary group text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-3.5">
               Go to Dashboard
               <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
             </Link>
-            <Link to="/company-interviews" className="btn-secondary text-base px-8 py-3.5 group">
+            <Link to="/company-interviews" className="btn-secondary text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-3.5 group">
               <Play size={18} className="text-ink-soft group-hover:text-ink transition-colors" /> Watch Interviews
             </Link>
           </motion.div>
 
-          <motion.div variants={item} className="mt-12 flex items-center gap-8 border-t border-border/50 pt-8">
+          <motion.div variants={item} className="mt-8 sm:mt-12 flex flex-wrap items-center gap-4 sm:gap-8 border-t border-border/50 pt-6 sm:pt-8">
             <Stat icon={Target} value="7" label="Prep modules" />
             <Stat icon={Zap} value="Instant" label="AI feedback" />
             <Stat icon={Building2} value="Top" label="Company Qs" />
@@ -90,7 +90,7 @@ export default function Home() {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
           className="relative"
         >
-          <div className="card p-8 relative overflow-hidden backdrop-blur-xl bg-surface/80 border-white/40 shadow-[0_20px_60px_-15px_rgba(52,87,213,0.15)]">
+          <div className="card p-5 sm:p-8 relative overflow-hidden backdrop-blur-xl bg-surface/80 border-white/40 shadow-[0_20px_60px_-15px_rgba(52,87,213,0.15)]">
             <div className="flex justify-between items-start mb-6">
               <div>
                 <p className="font-display font-semibold text-ink text-lg">Your readiness</p>
@@ -107,7 +107,7 @@ export default function Home() {
                 transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
                 className="absolute inset-0 rounded-full border border-dashed border-primary/20 scale-125"
               />
-              <ReadinessRing value={readiness} label="Overall readiness" size={200} stroke={14} />
+              <ReadinessRing value={readiness} label="Overall readiness" size={160} stroke={12} />
             </div>
 
             <div className="mt-8 grid grid-cols-2 gap-3">
@@ -138,13 +138,13 @@ export default function Home() {
 
 
       {/* Flow strip: Home -> Dashboard -> modules */}
-      <section className="max-w-7xl mx-auto px-6 py-24">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-24">
         <div className="text-center mb-10">
           <p className="text-xs font-semibold uppercase tracking-widest text-ink-faint mb-2">How it flows</p>
-          <h2 className="font-display text-3xl font-bold text-ink">Your path to readiness</h2>
+          <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink">Your path to readiness</h2>
         </div>
         
-        <div className="card p-8 overflow-x-auto relative shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-white bg-white/50 backdrop-blur-md">
+        <div className="card p-4 sm:p-8 overflow-x-auto relative shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-white bg-white/50 backdrop-blur-md">
           <div className="flex items-center justify-between min-w-max gap-4">
             <FlowNode label="Dashboard" active to="/dashboard" />
             {modules.slice(0, 6).map((m, i) => (

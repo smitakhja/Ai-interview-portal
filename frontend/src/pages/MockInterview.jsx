@@ -72,10 +72,10 @@ export default function MockInterview() {
       <AnimatePresence mode="wait">
         {stage === "select" && (
           <motion.div key="select" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <h1 className="font-display text-3xl font-bold text-ink mb-2">AI Mock Interview</h1>
-            <p className="text-ink-soft mb-8">Choose a target role. You'll get 5 questions, one at a time, with instant feedback.</p>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink mb-2">AI Mock Interview</h1>
+            <p className="text-sm sm:text-base text-ink-soft mb-6 sm:mb-8">Choose a target role. You'll get 5 questions, one at a time, with instant feedback.</p>
 
-            <div className="grid sm:grid-cols-3 gap-4 max-w-2xl">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-2xl">
               {(roles.length ? roles : Object.keys(ROLE_LABELS)).map((r) => (
                 <button
                   key={r}
@@ -111,7 +111,7 @@ export default function MockInterview() {
               </div>
             </div>
 
-            <div className="card p-6 flex gap-4 mb-6">
+            <div className="card p-4 sm:p-6 flex gap-3 sm:gap-4 mb-6">
               <div className="w-10 h-10 rounded-full bg-primary-soft text-primary flex items-center justify-center shrink-0">
                 <Bot size={18} />
               </div>
