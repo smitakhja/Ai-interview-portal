@@ -24,6 +24,7 @@ export default function VideoInterview() {
   // Phase 2/3: Speech & Logic State
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
+  const currentIndexRef = useRef(-1);
   const [results, setResults] = useState([]);
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
   const [isUserSpeaking, setIsUserSpeaking] = useState(false);
@@ -76,6 +77,11 @@ export default function VideoInterview() {
     };
   }, [stream]);
 
+  // Keep ref in sync for closures
+  useEffect(() => {
+    currentIndexRef.current = currentIndex;
+  }, [currentIndex]);
+
   // Phase 2: Speech Synthesis (AI Voice)
   const speak = (text) => {
     window.speechSynthesis.cancel();
@@ -92,7 +98,12 @@ export default function VideoInterview() {
     
     utterance.onend = () => {
       setIsAiSpeaking(false);
-      startListening(); // AI finished, start listening to user
+      // If we just finished the intro, go immediately to the first question
+      if (currentIndexRef.current === -1) {
+        setCurrentIndex(0);
+      } else {
+        startListening(); // AI finished, start listening to user
+      }
     };
     
     window.speechSynthesis.speak(utterance);
