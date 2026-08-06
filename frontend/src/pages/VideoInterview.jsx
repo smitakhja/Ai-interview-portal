@@ -13,7 +13,8 @@ export default function VideoInterview() {
   const [loading, setLoading] = useState(false);
   const videoRef = useRef(null);
 
-  const [role, setRole] = useState("Data Analyst");
+  // Setup state
+  const [targetRole, setTargetRole] = useState("Data Analyst");
 
   // Phase 4: Recording State
   const mediaRecorderRef = useRef(null);
@@ -196,7 +197,7 @@ export default function VideoInterview() {
   // Fetch Questions when stage changes to interview
   useEffect(() => {
     if (stage === "interview") {
-      api.post("/video-interview/generate-questions", { role, count: 5 })
+      api.post("/video-interview/generate-questions", { role: targetRole, count: 5 })
         .then(res => {
           setQuestions(res.data.questions || []);
         })
@@ -298,9 +299,9 @@ export default function VideoInterview() {
           <div className="mb-8 text-left">
             <label className="block text-sm font-medium text-slate-300 mb-2">Select Target Role</label>
             <select 
-              value={role} 
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+              value={targetRole} 
+              onChange={(e) => setTargetRole(e.target.value)}
+              className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="Data Analyst">Data Analyst</option>
               <option value="Software Engineer">Software Engineer</option>
@@ -309,13 +310,13 @@ export default function VideoInterview() {
               <option value="Backend Developer">Backend Developer</option>
             </select>
           </div>
-          
-          <button onClick={requestMedia} disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-full transition-all flex items-center justify-center gap-2">
+
+          <button onClick={requestMedia} disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20">
             {loading ? <Loader2 className="animate-spin" size={18} /> : <Video size={18} />}
-            {loading ? "Connecting..." : "Start Interview (Camera & Mic)"}
+            {loading ? "Connecting..." : "Start Interview (5 Questions)"}
           </button>
           
-          <button onClick={() => navigate(-1)} className="w-full mt-4 bg-transparent hover:bg-slate-800 text-slate-300 font-medium py-3 px-6 rounded-full transition-all text-sm">
+          <button onClick={() => navigate(-1)} className="w-full mt-3 bg-transparent hover:bg-slate-800 text-slate-300 font-medium py-3 px-6 rounded-xl transition-all text-sm">
             Cancel
           </button>
         </motion.div>
