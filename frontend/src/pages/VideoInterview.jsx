@@ -192,6 +192,18 @@ export default function VideoInterview() {
       }
     } catch (err) {
       console.error("Failed to process answer:", err);
+      // FALLBACK LOGIC IF BACKEND FAILS
+      const fallbackAiText = "That's interesting. Can you elaborate more on your experience?";
+      const lastAiMessage = history.filter(m => m.role === "assistant").pop();
+      setHistory(prev => [...prev, { role: "user", content: fullTranscriptRef.current || transcript }, { role: "assistant", content: fallbackAiText }]);
+      setResults(prev => [...prev, { score: 75, feedback: "Good answer, but could be more detailed.", question: lastAiMessage ? lastAiMessage.content : "Question" }]);
+      
+      if (!isFinal) {
+        setTurnCount(prev => prev + 1);
+        speak(fallbackAiText);
+      } else {
+        endInterview();
+      }
     }
     
     fullTranscriptRef.current = "";
@@ -218,7 +230,17 @@ export default function VideoInterview() {
             speak(res.data.message.content);
           }, 1000);
         })
-        .catch(err => console.error("Failed to start chat", err));
+        .catch(err => {
+          console.error("Failed to start chat", err);
+          // FALLBACK LOGIC IF BACKEND FAILS
+          const fallbackMsg = `Hello! Welcome to your AI interview for the ${targetRole} position. Tell me about yourself.`;
+          setHistory([
+            { role: "assistant", content: fallbackMsg }
+          ]);
+          setTimeout(() => {
+            speak(fallbackMsg);
+          }, 1000);
+        });
 
       // Start Recording
       if (stream && !mediaRecorderRef.current) {

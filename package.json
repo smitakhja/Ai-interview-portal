@@ -4,6 +4,7 @@
     "axios": "^1.18.1",
     "browserslist": "^4.28.6",
     "caniuse-lite": "^1.0.30001806",
+    "openai": "^7.4.0",
     "postcss": "^8.5.19"
   }
 }
