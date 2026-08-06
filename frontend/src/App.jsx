@@ -13,6 +13,7 @@ import Profile from "./pages/Profile.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import CompanyInterviews from "./pages/CompanyInterviews.jsx";
+import VideoInterview from "./pages/VideoInterview.jsx";
 
 export default function App() {
   const location = useLocation();
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/company-interviews" element={<CompanyInterviews />} />
+          <Route path="/video-interview" element={<VideoInterview />} />
         </Routes>
       </AnimatePresence>
     </div>

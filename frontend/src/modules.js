@@ -10,6 +10,14 @@ export const modules = [
     desc: "Get instant, AI-driven feedback on your resume's strengths and gaps.",
   },
   {
+    key: "videoInterview",
+    label: "Premium Video Interview",
+    to: "/video-interview",
+    icon: Video,
+    color: "amber",
+    desc: "A highly realistic AI-powered video interview with live feedback and scoring.",
+  },
+  {
     key: "mockInterview",
     label: "AI Mock Interview",
     to: "/mock-interview",
