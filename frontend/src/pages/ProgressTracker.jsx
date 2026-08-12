@@ -24,9 +24,9 @@ export default function ProgressTracker() {
       <p className="text-sm sm:text-base text-ink-soft mb-6 sm:mb-8">See how your readiness is building across every module.</p>
 
       <div className="grid lg:grid-cols-[280px_1fr] gap-8">
-        <div className="card p-8 flex flex-col items-center h-fit">
-          <ReadinessRing value={data?.readiness || 0} size={160} label="Overall readiness" />
-          <p className="text-xs text-ink-soft mt-5 text-center leading-relaxed">
+        <div className="card p-5 sm:p-8 flex flex-col items-center h-fit">
+          <ReadinessRing value={data?.readiness || 0} size={140} label="Overall readiness" />
+          <p className="text-xs text-ink-soft mt-4 sm:mt-5 text-center leading-relaxed">
             Your average best score across Resume, Mock Interview, Quiz, Aptitude, and HR rounds.
           </p>
         </div>

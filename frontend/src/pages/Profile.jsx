@@ -104,15 +104,15 @@ export default function Profile() {
       <Breadcrumb trail={[{ label: "Home", to: "/" }, { label: "Dashboard", to: "/dashboard" }, { label: "Profile" }]} />
 
       <div className="max-w-2xl">
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 sm:mb-8 text-center sm:text-left">
           <div
-            className="w-16 h-16 rounded-full flex items-center justify-center text-white font-display font-bold text-xl shrink-0"
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white font-display font-bold text-lg sm:text-xl shrink-0"
             style={{ background: profile.avatarColor || "#3457D5" }}
           >
             {profile.name?.[0] || "U"}
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-ink">{profile.name}</h1>
+            <h1 className="font-display text-xl sm:text-2xl font-bold text-ink">{profile.name}</h1>
             <p className="text-sm text-ink-soft">{profile.targetRole}</p>
           </div>
         </div>

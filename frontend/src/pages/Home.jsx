@@ -144,11 +144,11 @@ export default function Home() {
           <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink">Your path to readiness</h2>
         </div>
         
-        <div className="card p-4 sm:p-8 overflow-x-auto relative shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-white bg-white/50 backdrop-blur-md">
-          <div className="flex items-center justify-between min-w-max gap-4">
+        <div className="card p-4 sm:p-8 overflow-x-auto relative shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-white bg-white/50 backdrop-blur-md scrollbar-hide -mx-4 sm:mx-0 rounded-none sm:rounded-xl2">
+          <div className="flex items-center min-w-max gap-3 sm:gap-4 px-4 sm:px-0 py-2 sm:py-0">
             <FlowNode label="Dashboard" active to="/dashboard" />
             {modules.slice(0, 6).map((m, i) => (
-              <span key={m.key} className="flex items-center gap-4">
+              <span key={m.key} className="flex items-center gap-3 sm:gap-4">
                 <FlowArrow />
                 <FlowNode label={m.label} icon={m.icon} color={m.color} to={m.to} index={i} />
               </span>

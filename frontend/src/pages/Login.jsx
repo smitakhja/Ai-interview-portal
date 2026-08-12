@@ -1,17 +1,32 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageShell from "../components/PageShell.jsx";
-import { Chrome, Apple } from "lucide-react";
+import { Chrome, Loader2 } from "lucide-react";
+import api from "../api.js";
 
 export default function Login() {
   const [userId, setUserId] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  function submit(e) {
-    e.preventDefault();
-    const id = userId.trim() || "demo-user";
-    localStorage.setItem("userId", id);
-    navigate("/dashboard");
+  async function submit(e, forceId = null) {
+    if (e && e.preventDefault) e.preventDefault();
+    
+    const id = forceId || userId.trim() || "demo-user";
+    setLoading(true);
+
+    try {
+      // Connect to the login API
+      await api.post("/auth/login", { userId: id });
+      
+      localStorage.setItem("userId", id);
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Login failed:", err);
+      alert("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -31,7 +46,8 @@ export default function Login() {
           </div>
 
           <div className="flex justify-end mb-2">
-            <button className="btn-primary w-full" type="submit">
+            <button className="btn-primary w-full flex justify-center items-center gap-2" type="submit" disabled={loading}>
+              {loading && <Loader2 size={16} className="animate-spin" />}
               Sign in
             </button>
           </div>
@@ -45,22 +61,15 @@ export default function Login() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="flex justify-center">
             <button
               type="button"
-              onClick={() => { setUserId("google-user"); submit({ preventDefault: () => {} }); }}
-              className="flex items-center justify-center gap-2 rounded-xl bg-white text-ink font-semibold px-4 py-2.5 border border-border transition-all duration-200 hover:shadow-soft hover:border-border/80"
+              onClick={() => { setUserId("google-user"); submit(null, "google-user"); }}
+              disabled={loading}
+              className="flex items-center justify-center gap-2 w-full rounded-xl bg-white text-ink font-semibold px-4 py-2.5 border border-border transition-all duration-200 hover:shadow-soft hover:border-border/80 disabled:opacity-50"
             >
               <Chrome size={18} className="text-[#4285F4]" />
-              <span className="text-sm">Google</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => { setUserId("apple-user"); submit({ preventDefault: () => {} }); }}
-              className="flex items-center justify-center gap-2 rounded-xl bg-ink text-white font-semibold px-4 py-2.5 border border-ink transition-all duration-200 hover:shadow-soft hover:bg-ink/90"
-            >
-              <Apple size={18} />
-              <span className="text-sm">Apple</span>
+              <span className="text-sm">Sign in with Google</span>
             </button>
           </div>
         </form>

@@ -196,12 +196,12 @@ function VideoCard({ video, company, onOpen }) {
 function CompanyCard({ company, selected, onClick }) {
   const count = VIDEOS.filter((v) => v.company === company.id).length;
   return (
-    <motion.button whileHover={{ y: -2, scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={onClick} className={`card p-2.5 sm:p-4 text-left transition-all w-full ${selected ? "ring-2 shadow-card -translate-y-0.5" : "hover:shadow-card"}`} style={selected ? { "--tw-ring-color": company.color } : {}}>
-      <div className="flex items-start gap-2 sm:gap-3">
-        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 p-1.5 sm:p-2" style={{ background: company.bg }}><img src={company.logo} alt={company.name} className="max-h-full max-w-full object-contain" referrerPolicy="no-referrer" /></div>
-        <div className="min-w-0">
-          <p className="font-semibold text-ink text-xs sm:text-sm truncate">{company.name}</p>
-          <p className="text-[10px] sm:text-xs text-ink-faint mt-0.5">{count} video{count !== 1 ? "s" : ""}</p>
+    <motion.button whileHover={{ y: -2, scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={onClick} className={`card p-3 sm:p-4 text-left transition-all w-full ${selected ? "ring-2 shadow-card -translate-y-0.5" : "hover:shadow-card"}`} style={selected ? { "--tw-ring-color": company.color } : {}}>
+      <div className="flex items-center sm:items-start gap-3">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 p-2" style={{ background: company.bg }}><img src={company.logo} alt={company.name} className="max-h-full max-w-full object-contain" referrerPolicy="no-referrer" /></div>
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-ink text-sm sm:text-base truncate">{company.name}</p>
+          <p className="text-xs text-ink-faint mt-0.5">{count} video{count !== 1 ? "s" : ""}</p>
         </div>
       </div>
       <div className="mt-2 sm:mt-3 flex flex-wrap gap-1">
@@ -250,10 +250,10 @@ export default function CompanyInterviews() {
           How companies actually <span className="text-primary">interview</span>
         </h1>
         <p className="text-sm sm:text-base text-ink-soft mt-2 max-w-xl">Watch real mock interviews, learn the questions asked at top companies, and prepare smarter with curated video resources.</p>
-        <div className="flex flex-wrap gap-4 sm:gap-6 mt-4 sm:mt-6">
+        <div className="flex flex-wrap gap-3 sm:gap-6 mt-4 sm:mt-6">
           {[{ icon: Building2, val: COMPANIES.length, label: "Companies" }, { icon: Play, val: VIDEOS.length, label: "Videos" }, { icon: BookOpen, val: VIDEOS.reduce((s, v) => s + v.questions.length, 0), label: "Questions" }].map(({ icon: Icon, val, label }) => (
-            <div key={label} className="flex items-center gap-2">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-border flex items-center justify-center text-primary shadow-soft"><Icon size={14} /></div>
+            <div key={label} className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border border-border/50 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white border border-border flex items-center justify-center text-primary shadow-soft shrink-0"><Icon size={14} className="sm:w-4 sm:h-4" /></div>
               <div><p className="font-display font-bold text-ink text-sm sm:text-base leading-none">{val}+</p><p className="text-[10px] sm:text-xs text-ink-soft mt-0.5">{label}</p></div>
             </div>
           ))}
@@ -262,7 +262,7 @@ export default function CompanyInterviews() {
 
       <div className="mb-6 sm:mb-10">
         <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-ink-faint mb-3 sm:mb-4 flex items-center gap-1.5"><Building2 size={12} /> Select a company</p>
-        <motion.div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3" variants={stagger} initial="hidden" animate="show">
+        <motion.div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4" variants={stagger} initial="hidden" animate="show">
           {COMPANIES.map((c) => (<CompanyCard key={c.id} company={c} selected={selectedCompany === c.id} onClick={() => handleCompanyClick(c.id)} />))}
         </motion.div>
         <AnimatePresence>
@@ -295,7 +295,7 @@ export default function CompanyInterviews() {
           {search && (<button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink"><X size={13} /></button>)}
         </div>
         {/* Difficulty filter + Tag filter */}
-        <div className="flex items-center gap-2 overflow-x-auto lg:flex-wrap pb-1 -mx-1 px-1 lg:mx-0 lg:px-0 scrollbar-hide lg:overflow-visible">
+        <div className="flex items-center gap-2 overflow-x-auto lg:flex-wrap pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 scrollbar-hide lg:overflow-visible">
           <div className="flex items-center gap-1 sm:gap-1.5 bg-white border border-border rounded-full px-2.5 sm:px-3 py-1.5 sm:py-2 shadow-soft shrink-0">
             <Filter size={12} className="text-ink-faint" />
             {diffs.map((d) => (<button key={d} onClick={() => setDiffFilter(d)} className={`text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full transition-colors whitespace-nowrap ${diffFilter === d ? "bg-primary text-white" : "text-ink-soft hover:text-ink"}`}>{d}</button>))}
@@ -318,7 +318,7 @@ export default function CompanyInterviews() {
           <button onClick={() => { setSearch(""); setDiffFilter("All"); setTagFilter("All"); setSelectedCompany(null); }} className="btn-secondary mt-6 text-sm">Clear all filters</button>
         </motion.div>
       ) : (
-        <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5" variants={stagger} initial="hidden" animate="show" key={`${selectedCompany}-${search}-${diffFilter}-${tagFilter}`}>
+        <motion.div className="grid grid-cols-1 min-[500px]:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" variants={stagger} initial="hidden" animate="show" key={`${selectedCompany}-${search}-${diffFilter}-${tagFilter}`}>
           {filteredVideos.map((v) => (<VideoCard key={v.id} video={v} company={COMPANIES.find((c) => c.id === v.company)} onOpen={setActiveVideo} />))}
         </motion.div>
       )}

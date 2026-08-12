@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bot, Send, Loader2, Trophy, RotateCcw } from "lucide-react";
 import PageShell from "../components/PageShell.jsx";
@@ -6,36 +6,43 @@ import Breadcrumb from "../components/Breadcrumb.jsx";
 import api from "../api.js";
 
 const ROLE_LABELS = {
-  "software-engineer": "Software Engineer",
-  "data-analyst": "Data Analyst",
-  "product-manager": "Product Manager",
+  swe: "Software Engineer",
+  frontend: "Frontend Developer",
+  backend: "Backend Developer",
+  data: "Data Analyst",
+  pm: "Product Manager",
+  devops: "DevOps Engineer",
 };
 
 export default function MockInterview() {
-  const [stage, setStage] = useState("select"); // select | interview | summary
+  const [stage, setStage] = useState("select");
+  const [role, setRole] = useState("swe");
   const [roles, setRoles] = useState([]);
-  const [role, setRole] = useState("software-engineer");
   const [questions, setQuestions] = useState([]);
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState([]);
   const [feedback, setFeedback] = useState(null);
+  const [results, setResults] = useState([]);
   const [summary, setSummary] = useState(null);
-
-  useEffect(() => {
-    api.get("/interview/roles").then((res) => setRoles(res.data.roles)).catch(() => setRoles(Object.keys(ROLE_LABELS)));
-  }, []);
 
   async function startInterview() {
     setLoading(true);
-    const { data } = await api.get("/interview/questions", { params: { role, count: 5 } });
-    setQuestions(data.questions);
-    setIndex(0);
-    setResults([]);
-    setFeedback(null);
-    setStage("interview");
-    setLoading(false);
+    try {
+      const { data } = await api.get("/interview/questions", {
+        params: { role, count: 5 },
+      });
+      setQuestions(data.questions);
+      setIndex(0);
+      setResults([]);
+      setFeedback(null);
+      setSummary(null);
+      setStage("interview");
+    } catch (err) {
+      console.error("Failed to fetch questions:", err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function submitAnswer() {
@@ -75,12 +82,12 @@ export default function MockInterview() {
             <h1 className="font-display text-2xl sm:text-3xl font-bold text-ink mb-2">AI Mock Interview</h1>
             <p className="text-sm sm:text-base text-ink-soft mb-6 sm:mb-8">Choose a target role. You'll get 5 questions, one at a time, with instant feedback.</p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-2xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 max-w-2xl">
               {(roles.length ? roles : Object.keys(ROLE_LABELS)).map((r) => (
                 <button
                   key={r}
                   onClick={() => setRole(r)}
-                  className={`card p-5 text-left transition-all ${
+                  className={`card p-4 sm:p-5 text-left transition-all ${
                     role === r ? "ring-2 ring-primary shadow-card -translate-y-0.5" : "hover:-translate-y-0.5 hover:shadow-card"
                   }`}
                 >
@@ -90,7 +97,7 @@ export default function MockInterview() {
               ))}
             </div>
 
-            <button onClick={startInterview} disabled={loading} className="btn-primary mt-8">
+            <button onClick={startInterview} disabled={loading} className="btn-primary mt-6 sm:mt-8">
               {loading ? <Loader2 size={18} className="animate-spin" /> : <Bot size={18} />}
               Start interview
             </button>
@@ -103,7 +110,7 @@ export default function MockInterview() {
               <span className="text-xs font-semibold text-ink-faint">
                 Question {index + 1} of {questions.length}
               </span>
-              <div className="h-1.5 w-40 bg-border rounded-full overflow-hidden">
+              <div className="h-1.5 w-28 sm:w-40 bg-border rounded-full overflow-hidden">
                 <motion.div
                   className="h-full bg-primary"
                   animate={{ width: `${((index + 1) / questions.length) * 100}%` }}
@@ -112,10 +119,10 @@ export default function MockInterview() {
             </div>
 
             <div className="card p-4 sm:p-6 flex gap-3 sm:gap-4 mb-6">
-              <div className="w-10 h-10 rounded-full bg-primary-soft text-primary flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary-soft text-primary flex items-center justify-center shrink-0">
                 <Bot size={18} />
               </div>
-              <p className="font-medium text-ink pt-1.5">{questions[index].question}</p>
+              <p className="font-medium text-ink text-sm sm:text-base pt-1 sm:pt-1.5">{questions[index].question}</p>
             </div>
 
             {!feedback ? (
@@ -133,7 +140,7 @@ export default function MockInterview() {
                 </button>
               </>
             ) : (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card p-6">
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card p-4 sm:p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="font-display text-2xl font-bold text-primary">{feedback.score}</div>
                   <span className="text-xs text-ink-soft">/ 100</span>
@@ -148,15 +155,15 @@ export default function MockInterview() {
         )}
 
         {stage === "summary" && summary && (
-          <motion.div key="summary" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="max-w-lg card p-10 text-center">
-            <div className="w-16 h-16 rounded-full bg-amber-soft text-amber flex items-center justify-center mx-auto mb-4">
-              <Trophy size={26} />
+          <motion.div key="summary" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="max-w-lg mx-auto card p-6 sm:p-10 text-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-amber-soft text-amber flex items-center justify-center mx-auto mb-4">
+              <Trophy size={24} />
             </div>
-            <p className="font-display text-4xl font-bold text-ink">{summary.averageScore}%</p>
-            <p className="text-ink-soft mt-2">{summary.verdict}</p>
+            <p className="font-display text-3xl sm:text-4xl font-bold text-ink">{summary.averageScore}%</p>
+            <p className="text-ink-soft mt-2 text-sm sm:text-base">{summary.verdict}</p>
             <button
               onClick={() => setStage("select")}
-              className="btn-secondary mt-8 mx-auto"
+              className="btn-secondary mt-6 sm:mt-8 mx-auto"
             >
               <RotateCcw size={16} /> Try another role
             </button>

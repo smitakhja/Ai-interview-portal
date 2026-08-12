@@ -317,20 +317,20 @@ export default function VideoInterview() {
 
   if (stage === "setup") {
     return (
-      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-md w-full bg-slate-900/50 backdrop-blur-xl border border-slate-700 p-8 rounded-3xl shadow-2xl text-center">
-          <div className="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-500/50">
-            <MonitorPlay size={32} className="text-blue-400" />
+      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4 py-6 sm:p-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-md w-full bg-slate-900/50 backdrop-blur-xl border border-slate-700 p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl text-center">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 border border-blue-500/50">
+            <MonitorPlay size={28} className="text-blue-400 sm:w-8 sm:h-8" />
           </div>
-          <h1 className="text-2xl font-bold mb-2">AI Video Interview</h1>
-          <p className="text-slate-400 text-sm mb-6">To begin your interview, we need access to your camera and microphone. This ensures the AI can see and hear you clearly.</p>
+          <h1 className="text-xl sm:text-2xl font-bold mb-2">AI Video Interview</h1>
+          <p className="text-slate-400 text-xs sm:text-sm mb-5 sm:mb-6">To begin your interview, we need access to your camera and microphone. This ensures the AI can see and hear you clearly.</p>
           
-          <div className="mb-8 text-left">
+          <div className="mb-6 sm:mb-8 text-left">
             <label className="block text-sm font-medium text-slate-300 mb-2">Select Target Role</label>
             <select 
               value={targetRole} 
               onChange={(e) => setTargetRole(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="Data Analyst">Data Analyst</option>
               <option value="Software Engineer">Software Engineer</option>
@@ -340,9 +340,9 @@ export default function VideoInterview() {
             </select>
           </div>
 
-          <button onClick={requestMedia} disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20">
+          <button onClick={requestMedia} disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 text-sm sm:text-base">
             {loading ? <Loader2 className="animate-spin" size={18} /> : <Video size={18} />}
-            {loading ? "Connecting..." : "Start Interview (5 Questions)"}
+            {loading ? "Connecting..." : "Start Interview (5 Qs)"}
           </button>
           
           <button onClick={() => navigate(-1)} className="w-full mt-3 bg-transparent hover:bg-slate-800 text-slate-300 font-medium py-3 px-6 rounded-xl transition-all text-sm">
@@ -357,32 +357,32 @@ export default function VideoInterview() {
     const avgScore = results.length > 0 ? Math.round(results.reduce((acc, curr) => acc + (curr.score || 0), 0) / results.length) : 0;
     
     return (
-      <div className="min-h-screen bg-[#0F172A] text-white overflow-y-auto p-4 sm:p-8">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-slate-900/60 backdrop-blur-xl border border-slate-700 p-8 rounded-3xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Interview Complete</h1>
-              <p className="text-slate-400">The AI has analyzed your responses. Here is your final report.</p>
+      <div className="min-h-screen bg-[#0F172A] text-white overflow-y-auto px-4 py-6 sm:p-8">
+        <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-slate-900/60 backdrop-blur-xl border border-slate-700 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl sm:text-3xl font-bold mb-2">Interview Complete</h1>
+              <p className="text-slate-400 text-sm sm:text-base">The AI has analyzed your responses. Here is your final report.</p>
             </div>
-            <div className="flex flex-col items-center justify-center p-6 bg-slate-800/50 rounded-2xl border border-slate-700 min-w-[160px]">
-              <Trophy size={32} className="text-amber-400 mb-2" />
-              <div className="text-4xl font-display font-bold text-amber-400">{avgScore}<span className="text-lg text-slate-400">/100</span></div>
-              <div className="text-xs text-slate-400 uppercase tracking-widest mt-1">Overall Score</div>
+            <div className="flex flex-col items-center justify-center p-4 sm:p-6 bg-slate-800/50 rounded-2xl border border-slate-700 min-w-[140px] sm:min-w-[160px]">
+              <Trophy size={28} className="text-amber-400 mb-2 sm:w-8 sm:h-8" />
+              <div className="text-3xl sm:text-4xl font-display font-bold text-amber-400">{avgScore}<span className="text-base sm:text-lg text-slate-400">/100</span></div>
+              <div className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-widest mt-1">Overall Score</div>
             </div>
           </motion.div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2 space-y-6">
-              <h2 className="text-xl font-semibold">Question Breakdown</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            <div className="md:col-span-2 space-y-4 sm:space-y-6 order-2 md:order-1">
+              <h2 className="text-lg sm:text-xl font-semibold">Question Breakdown</h2>
               {results.map((r, i) => (
-                <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="bg-slate-900/40 border border-slate-800 p-6 rounded-2xl">
-                  <div className="flex items-start justify-between gap-4 mb-4">
-                    <h3 className="font-medium text-slate-200">Q{i+1}: {r.question}</h3>
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${r.score >= 80 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : r.score >= 50 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
+                <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="bg-slate-900/40 border border-slate-800 p-4 sm:p-6 rounded-xl sm:rounded-2xl">
+                  <div className="flex items-start justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+                    <h3 className="font-medium text-slate-200 text-sm sm:text-base">Q{i+1}: {r.question}</h3>
+                    <span className={`px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold whitespace-nowrap shrink-0 ${r.score >= 80 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : r.score >= 50 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
                       {r.score}/100
                     </span>
                   </div>
-                  <div className="bg-slate-950/50 p-4 rounded-xl text-sm text-slate-300 border border-slate-800/50">
+                  <div className="bg-slate-950/50 p-3 sm:p-4 rounded-lg sm:rounded-xl text-xs sm:text-sm text-slate-300 border border-slate-800/50">
                     <strong className="text-white block mb-1">AI Feedback:</strong>
                     {r.feedback}
                   </div>
@@ -390,15 +390,15 @@ export default function VideoInterview() {
               ))}
             </div>
             
-            <div className="space-y-6">
-              <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl flex flex-col gap-4">
-                <h2 className="font-semibold mb-2">Actions</h2>
+            <div className="space-y-4 sm:space-y-6 order-1 md:order-2">
+              <div className="bg-slate-900/60 border border-slate-800 p-4 sm:p-6 rounded-xl sm:rounded-2xl flex flex-col gap-3 sm:gap-4">
+                <h2 className="font-semibold text-sm sm:text-base mb-1 sm:mb-2">Actions</h2>
                 {videoUrl && (
-                  <a href={videoUrl} download="interview_recording.webm" className="w-full text-center bg-slate-800 hover:bg-slate-700 text-white font-medium py-3 px-6 rounded-xl transition-all border border-slate-700">
+                  <a href={videoUrl} download="interview_recording.webm" className="w-full text-center bg-slate-800 hover:bg-slate-700 text-white font-medium py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl transition-all border border-slate-700 text-sm">
                     Download Recording
                   </a>
                 )}
-                <button onClick={() => navigate("/dashboard")} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-xl transition-all">
+                <button onClick={() => navigate("/dashboard")} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl transition-all text-sm">
                   Return to Dashboard
                 </button>
               </div>
@@ -412,34 +412,34 @@ export default function VideoInterview() {
   return (
     <div className="min-h-screen bg-[#0F172A] text-white flex flex-col font-sans overflow-hidden">
       {/* Top Header */}
-      <header className="h-16 flex items-center justify-between px-6 border-b border-slate-800/50 bg-slate-900/50 backdrop-blur-md z-10">
-        <div className="flex items-center gap-3">
+      <header className="h-12 sm:h-16 flex items-center justify-between px-4 sm:px-6 border-b border-slate-800/50 bg-slate-900/50 backdrop-blur-md z-10">
+        <div className="flex items-center gap-2 sm:gap-3">
           <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-          <span className="font-semibold text-sm tracking-wide">REC</span>
-          <span className="text-slate-400 text-sm ml-2 border-l border-slate-700 pl-4">00:00</span>
+          <span className="font-semibold text-xs sm:text-sm tracking-wide">REC</span>
+          <span className="text-slate-400 text-xs sm:text-sm ml-2 border-l border-slate-700 pl-3 sm:pl-4">00:00</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="bg-slate-800 px-3 py-1 rounded-full text-xs font-medium text-slate-300 border border-slate-700">
-            {turnCount === 0 ? "Intro" : `Question ${turnCount} / ${maxTurns}`}
+          <div className="bg-slate-800 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium text-slate-300 border border-slate-700">
+            {turnCount === 0 ? "Intro" : `Q ${turnCount}/${maxTurns}`}
           </div>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-4 sm:p-6 flex flex-col lg:flex-row gap-4 sm:gap-6 max-h-[calc(100vh-64px)] overflow-hidden">
+      <main className="flex-1 p-3 sm:p-4 lg:p-6 flex flex-col lg:flex-row gap-3 sm:gap-4 lg:gap-6 max-h-[calc(100vh-48px)] sm:max-h-[calc(100vh-64px)] overflow-hidden">
         
         {/* Left Side - AI Avatar */}
-        <div className="flex-1 bg-slate-900/40 rounded-3xl border border-slate-800 overflow-hidden relative shadow-2xl flex flex-col items-center justify-center group">
-          <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 border border-white/10 z-10">
+        <div className="flex-1 min-h-[200px] sm:min-h-[280px] bg-slate-900/40 rounded-2xl sm:rounded-3xl border border-slate-800 overflow-hidden relative shadow-2xl flex flex-col items-center justify-center group">
+          <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-black/40 backdrop-blur-md px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium flex items-center gap-1.5 sm:gap-2 border border-white/10 z-10">
             <Bot size={14} className="text-blue-400" /> AI Interviewer
           </div>
           
           {/* Pulsing AI Avatar Placeholder */}
           <div className="relative">
             {isAiSpeaking && <div className="absolute inset-0 bg-blue-500/30 rounded-full blur-3xl animate-ping" />}
-            <div className={`w-32 h-32 sm:w-48 sm:h-48 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-400 p-1 shadow-[0_0_40px_rgba(59,130,246,0.3)] relative z-10 transition-transform ${isAiSpeaking ? 'scale-105' : 'scale-100'}`}>
+            <div className={`w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-400 p-1 shadow-[0_0_40px_rgba(59,130,246,0.3)] relative z-10 transition-transform ${isAiSpeaking ? 'scale-105' : 'scale-100'}`}>
               <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center overflow-hidden">
-                <Bot size={64} className="text-blue-500" />
+                <Bot size={40} className="text-blue-500 sm:w-12 sm:h-12 lg:w-16 lg:h-16" />
               </div>
             </div>
             {/* Voice Waves when speaking */}
@@ -453,7 +453,7 @@ export default function VideoInterview() {
           </div>
           
           {/* Subtitles Area */}
-          <div className="absolute bottom-6 left-0 w-full px-8 text-center">
+          <div className="absolute bottom-3 sm:bottom-6 left-0 w-full px-4 sm:px-8 text-center">
             <AnimatePresence mode="wait">
               {isAiSpeaking ? (
                 <motion.div key="ai-text" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="inline-block bg-blue-900/40 backdrop-blur-md px-6 py-3 rounded-2xl border border-blue-500/30 shadow-xl max-w-2xl">
@@ -469,9 +469,9 @@ export default function VideoInterview() {
         </div>
 
         {/* Right Side - User Webcam */}
-        <div className="lg:w-[400px] xl:w-[500px] shrink-0 flex flex-col gap-4 sm:gap-6">
-          <div className="flex-1 bg-black rounded-3xl border border-slate-800 overflow-hidden relative shadow-2xl">
-            <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 border border-white/10 z-10">
+        <div className="h-[240px] sm:h-[300px] lg:h-auto lg:w-[360px] xl:w-[460px] shrink-0 flex flex-col gap-3 sm:gap-4 lg:gap-6">
+          <div className="flex-1 min-h-0 bg-black rounded-2xl sm:rounded-3xl border border-slate-800 overflow-hidden relative shadow-2xl">
+            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-black/40 backdrop-blur-md px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium flex items-center gap-1.5 sm:gap-2 border border-white/10 z-10">
               You
             </div>
             {!camEnabled && (
@@ -490,27 +490,27 @@ export default function VideoInterview() {
           </div>
 
           {/* Controls Bar */}
-          <div className="h-24 bg-slate-900/60 backdrop-blur-xl rounded-3xl border border-slate-800 p-4 flex items-center justify-center gap-4 sm:gap-6 shadow-2xl shrink-0">
-            <button onClick={toggleMic} className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${micEnabled ? 'bg-slate-700/50 hover:bg-slate-600 border border-slate-600 text-white' : 'bg-red-500/20 text-red-500 border border-red-500/50 hover:bg-red-500/30'}`}>
-              {micEnabled ? <Mic size={20} /> : <MicOff size={20} />}
+          <div className="h-16 sm:h-20 lg:h-24 bg-slate-900/60 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-slate-800 px-3 sm:px-4 flex items-center justify-center gap-2.5 sm:gap-4 lg:gap-6 shadow-2xl shrink-0">
+            <button onClick={toggleMic} className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shrink-0 ${micEnabled ? 'bg-slate-700/50 hover:bg-slate-600 border border-slate-600 text-white' : 'bg-red-500/20 text-red-500 border border-red-500/50 hover:bg-red-500/30'}`}>
+              {micEnabled ? <Mic size={18} /> : <MicOff size={18} />}
             </button>
-            <button onClick={endInterview} className="w-16 h-12 rounded-full bg-red-600 hover:bg-red-700 flex items-center justify-center transition-all shadow-[0_0_20px_rgba(220,38,38,0.4)]">
-              <PhoneOff size={22} className="text-white" />
+            <button onClick={endInterview} className="w-12 sm:w-16 h-10 sm:h-12 rounded-full bg-red-600 hover:bg-red-700 flex items-center justify-center transition-all shadow-[0_0_20px_rgba(220,38,38,0.4)] shrink-0">
+              <PhoneOff size={18} className="text-white sm:w-[22px] sm:h-[22px]" />
             </button>
-            <button onClick={toggleCam} className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${camEnabled ? 'bg-slate-700/50 hover:bg-slate-600 border border-slate-600 text-white' : 'bg-red-500/20 text-red-500 border border-red-500/50 hover:bg-red-500/30'}`}>
-              {camEnabled ? <Video size={20} /> : <VideoOff size={20} />}
+            <button onClick={toggleCam} className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shrink-0 ${camEnabled ? 'bg-slate-700/50 hover:bg-slate-600 border border-slate-600 text-white' : 'bg-red-500/20 text-red-500 border border-red-500/50 hover:bg-red-500/30'}`}>
+              {camEnabled ? <Video size={18} /> : <VideoOff size={18} />}
             </button>
             
             {/* Next Question button */}
-            <div className="w-px h-8 bg-slate-700 mx-2" />
+            <div className="w-px h-6 sm:h-8 bg-slate-700 mx-0.5 sm:mx-2 shrink-0" />
             
             <button 
               onClick={handleNextQuestion} 
               disabled={isAiSpeaking || isProcessingAnswer}
-              className="px-4 h-12 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 flex items-center justify-center gap-2 transition-all font-semibold shadow-lg text-sm"
+              className="px-3 sm:px-4 h-10 sm:h-12 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 flex items-center justify-center gap-1.5 sm:gap-2 transition-all font-semibold shadow-lg text-xs sm:text-sm shrink-0"
             >
-              {isProcessingAnswer ? <Loader2 size={18} className="animate-spin" /> : "Next"}
-              {!isProcessingAnswer && <ArrowRight size={16} />}
+              {isProcessingAnswer ? <Loader2 size={16} className="animate-spin" /> : "Next"}
+              {!isProcessingAnswer && <ArrowRight size={14} />}
             </button>
           </div>
         </div>

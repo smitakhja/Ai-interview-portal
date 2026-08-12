@@ -10,6 +10,7 @@ import hrRoutes from "./routes/hr.js";
 import progressRoutes from "./routes/progress.js";
 import profileRoutes from "./routes/profile.js";
 import videoInterviewRoutes from "./routes/videoInterview.js";
+import authRoutes from "./routes/auth.js";
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use("/api/hr", hrRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/video-interview", videoInterviewRoutes);
+app.use("/api/auth", authRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: `No route for ${req.method} ${req.originalUrl}` });
