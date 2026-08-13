@@ -27,26 +27,56 @@ export default function Login() {
     }
   }
 
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      // Dynamic import to avoid breaking the build if firebase isn't set up yet
+      const { signInWithPopup } = await import("firebase/auth");
+      const { auth, googleProvider } = await import("../firebase.js");
+      
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      
+      localStorage.setItem("userId", user.uid);
+      localStorage.setItem("userEmail", user.email);
+      localStorage.setItem("userName", user.displayName);
+      
+      // Optionally sync with backend
+      try {
+        await api.post("/auth/login", { userId: user.uid, email: user.email, name: user.displayName });
+      } catch (err) {
+        console.warn("Backend sync failed:", err);
+      }
+      
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Firebase Auth Error:", error);
+      alert(`Sign in failed: ${error.message}\n\nDid you forget to add your Firebase config?`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <PageShell>
       <div className="max-w-md mx-auto mt-12">
         <h1 className="text-2xl font-bold mb-4">Log in</h1>
         <form onSubmit={submit} className="card p-6 space-y-4">
           <div>
-            <label className="text-xs font-semibold text-ink-soft mb-1.5 block">User ID</label>
+            <label className="text-xs font-semibold text-ink-soft mb-1.5 block">User ID (Demo Mode)</label>
             <input
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
               placeholder="Enter a user id (e.g. alice)"
               className="w-full border border-border rounded-xl px-4 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
-            <p className="text-xs text-ink-soft mt-2">Signing in as a demo user will show sample data.</p>
+            <p className="text-xs text-ink-soft mt-2">Signing in as a demo user bypasses Firebase Auth and shows sample data.</p>
           </div>
 
           <div className="flex justify-end mb-2">
             <button className="btn-primary w-full flex justify-center items-center gap-2" type="submit" disabled={loading}>
               {loading && <Loader2 size={16} className="animate-spin" />}
-              Sign in
+              Sign in Demo Mode
             </button>
           </div>
 
@@ -55,14 +85,14 @@ export default function Login() {
               <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="bg-surface px-2 text-ink-faint uppercase tracking-wider">Or continue with</span>
+              <span className="bg-surface px-2 text-ink-faint uppercase tracking-wider">Or continue with real auth</span>
             </div>
           </div>
 
           <div className="flex justify-center">
             <button
               type="button"
-              onClick={() => { setUserId("google-user"); submit(null, "google-user"); }}
+              onClick={handleGoogleSignIn}
               disabled={loading}
               className="flex items-center justify-center gap-2 w-full rounded-xl bg-white text-ink font-semibold px-4 py-2.5 border border-border transition-all duration-200 hover:shadow-soft hover:border-border/80 disabled:opacity-50"
             >
