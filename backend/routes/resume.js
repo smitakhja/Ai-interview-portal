@@ -2,8 +2,21 @@ import { Router } from "express";
 import multer from "multer";
 import { analyzeResumeText } from "../utils/analyzer.js";
 import { createWorker } from "tesseract.js";
+import OpenAI from "openai";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const router = Router();
+
+let openai;
+try {
+  if (process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+} catch (e) {
+  console.warn("OpenAI API key not configured or invalid for Resume Analyzer.");
+}
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -84,11 +97,31 @@ router.post("/analyze", upload.single("resume"), async (req, res) => {
     const result = analyzeResumeText(text);
     const extractedSnippet = text.trim().slice(0, 400) + (text.trim().length > 400 ? "..." : "");
 
+    let improvedText = null;
+    if (openai && text.trim().length >= 15) {
+      try {
+        const prompt = `You are an expert ATS resume reviewer and career coach. 
+The user has uploaded their resume text (or a part of it). 
+Review the following text, and provide a short, improved, rewritten version of it that sounds more professional, uses strong action verbs, and is ATS-friendly. 
+Keep it concise. If the text is completely garbled or unreadable (like random characters from bad OCR), politely inform the user that the text couldn't be read properly and ask them for a clearer image or PDF.
+Original Text: "${extractedSnippet}"`;
+
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "system", content: prompt }]
+        });
+        improvedText = response.choices[0].message.content;
+      } catch (aiErr) {
+        console.error("OpenAI resume improvement failed:", aiErr);
+      }
+    }
+
     res.json({
       success: true,
       fileType,
       filePreviewUrl,
       extractedSnippet,
+      improvedText,
       ...result,
     });
   } catch (err) {

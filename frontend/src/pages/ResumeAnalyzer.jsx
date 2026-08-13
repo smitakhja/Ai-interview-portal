@@ -144,6 +144,18 @@ export default function ResumeAnalyzer() {
                 <Section title="Skills found" items={result.skillsFound} empty="No recognized skills found." tone="mint" />
                 <Section title="Action verbs used" items={result.actionVerbsFound} empty="No strong action verbs found." tone="primary" />
 
+                {result.improvedText && (
+                  <div className="mt-6 p-5 bg-primary-soft/30 rounded-xl border border-primary/20">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles size={16} className="text-primary" />
+                      <p className="text-sm font-semibold text-primary">AI Suggested Rewrite</p>
+                    </div>
+                    <p className="text-sm text-ink-soft whitespace-pre-wrap leading-relaxed">
+                      {result.improvedText}
+                    </p>
+                  </div>
+                )}
+
                 <div className="mt-6">
                   <p className="text-sm font-semibold text-ink mb-3">Suggestions to improve</p>
                   <ul className="space-y-2.5">
