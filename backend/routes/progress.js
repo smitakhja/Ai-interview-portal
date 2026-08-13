@@ -1,9 +1,9 @@
 import { Router } from "express";
-import pool from "../db.js";
+import { db } from "../firebaseAdmin.js";
 
 const router = Router();
 
-// In-memory store keyed by userId (swap for a real DB in production).
+// In-memory store keyed by userId (fallback if Firestore fails).
 const store = new Map();
 
 function getUserId(req) {
@@ -27,16 +27,14 @@ router.get("/", async (req, res) => {
   let data = store.get(userId) || getDefault();
 
   try {
-    // Demo: Try to fetch average_score from MySQL to show it's connected
-    const [rows] = await pool.query("SELECT * FROM progress_tracking WHERE user_id = 1");
-    if (rows.length > 0) {
-       // Just an example of enriching the default data with MySQL data
-       // In a real app we'd map all SQL columns to the response
-       const dbProgress = rows[0];
-       data.readiness = Math.round(dbProgress.average_score || 0);
+    const doc = await db.collection("progress").doc(userId).get();
+    if (doc.exists) {
+       const dbProgress = doc.data();
+       // Merge Firestore data into default structure
+       data = { ...data, ...dbProgress };
     }
   } catch (err) {
-    console.error("DB Error (progress GET):", err.message);
+    console.error("Firestore Error (progress GET):", err.message);
   }
 
   const modules = ["resumeAnalyzer", "mockInterview", "technicalQuiz", "aptitudeTest", "hrInterview"];
@@ -68,17 +66,16 @@ router.post("/update", async (req, res) => {
   store.set(userId, data);
 
   try {
-    // Demo: Upsert into MySQL
     const newAverage = Object.keys(data)
-      .filter(k => k !== 'history' && data[k].bestScore)
+      .filter(k => k !== 'history' && k !== 'readiness' && data[k].bestScore)
       .reduce((sum, k) => sum + data[k].bestScore, 0) / 5;
       
-    await pool.query(
-      "INSERT INTO progress_tracking (user_id, average_score) VALUES (1, ?) ON DUPLICATE KEY UPDATE average_score = ?",
-      [newAverage, newAverage]
-    );
+    data.readiness = Math.round(newAverage);
+    
+    // Upsert into Firestore
+    await db.collection("progress").doc(userId).set(data, { merge: true });
   } catch (err) {
-    console.error("DB Error (progress PUT):", err.message);
+    console.error("Firestore Error (progress POST):", err.message);
   }
 
   res.json({ success: true, data });

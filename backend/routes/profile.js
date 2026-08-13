@@ -1,5 +1,5 @@
 import { Router } from "express";
-import pool from "../db.js";
+import { db } from "../firebaseAdmin.js";
 
 const router = Router();
 const store = new Map();
@@ -23,20 +23,20 @@ function getDefault() {
 router.get("/", async (req, res) => {
   const userId = getUserId(req);
   try {
-    const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [userId + "@example.com"]);
-    if (rows.length > 0) {
-      const user = rows[0];
+    const doc = await db.collection("profiles").doc(userId).get();
+    if (doc.exists) {
+      const user = doc.data();
       return res.json({
-        name: user.full_name,
+        name: user.full_name || user.name,
         email: user.email,
-        targetRole: "Software Engineer",
-        experience: "1-3 years",
-        skills: ["JavaScript", "React", "Node.js", "SQL"],
-        avatarColor: "#3457D5",
+        targetRole: user.targetRole || "Software Engineer",
+        experience: user.experience || "1-3 years",
+        skills: user.skills || ["JavaScript", "React", "Node.js", "SQL"],
+        avatarColor: user.avatarColor || "#3457D5",
       });
     }
   } catch (err) {
-    console.error("DB Error (profile GET):", err.message);
+    console.error("Firestore Error (profile GET):", err.message);
   }
   
   // Fallback to memory store
@@ -51,15 +51,17 @@ router.put("/", async (req, res) => {
   store.set(userId, updated);
   
   try {
-    // Upsert logic for simple demo (assumes email is unique)
-    const email = userId + "@example.com";
-    const fullName = updated.name || "Unknown";
-    await pool.query(
-      "INSERT INTO users (full_name, email, password) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE full_name = ?",
-      [fullName, email, "hashed_password_stub", fullName]
-    );
+    await db.collection("profiles").doc(userId).set({
+      full_name: updated.name || "Unknown",
+      email: updated.email || userId + "@example.com",
+      targetRole: updated.targetRole || "",
+      experience: updated.experience || "",
+      skills: updated.skills || [],
+      avatarColor: updated.avatarColor || "#3457D5",
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
   } catch (err) {
-    console.error("DB Error (profile PUT):", err.message);
+    console.error("Firestore Error (profile PUT):", err.message);
   }
 
   res.json({ success: true, profile: updated });
