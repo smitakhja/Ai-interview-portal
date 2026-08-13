@@ -1,23 +1,42 @@
 import { Router } from "express";
-import { aptitudeBank, getAptitudeSet } from "../data/aptitudeQuestions.js";
+import { db } from "../firebaseAdmin.js";
+import { aptitudeBank } from "../data/aptitudeQuestions.js"; // Fallback
 
 const router = Router();
 
+async function getAptitudeQuestionsFromDb() {
+  try {
+    const snapshot = await db.collection("aptitude").get();
+    if (!snapshot.empty) {
+      return snapshot.docs.map(doc => doc.data());
+    }
+  } catch (err) {
+    console.error("Firestore aptitude error:", err.message);
+  }
+  return aptitudeBank || [];
+}
+
 // GET /api/aptitude/questions?count=8
-router.get("/questions", (req, res) => {
+router.get("/questions", async (req, res) => {
   const { count = 8 } = req.query;
-  const questions = getAptitudeSet(Number(count)).map(({ answer, ...q }) => q);
+  const pool = await getAptitudeQuestionsFromDb();
+  
+  const shuffled = [...pool].sort(() => 0.5 - Math.random());
+  const selected = shuffled.slice(0, Number(count));
+  
+  const questions = selected.map(({ answer, ...q }) => q);
   res.json({ questions });
 });
 
 // POST /api/aptitude/submit  { answers: [{ id, selected }] }
-router.post("/submit", (req, res) => {
+router.post("/submit", async (req, res) => {
   const { answers = [] } = req.body;
+  const pool = await getAptitudeQuestionsFromDb();
 
   let correctCount = 0;
   const byCategory = {};
   const breakdown = answers.map(({ id, selected }) => {
-    const q = aptitudeBank.find((item) => item.id === id);
+    const q = pool.find((item) => item.id === id || String(item.id) === String(id));
     const isCorrect = q && q.answer === selected;
     if (isCorrect) correctCount += 1;
     if (q) {
