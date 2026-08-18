@@ -77,7 +77,9 @@ router.post("/analyze", upload.single("resume"), async (req, res) => {
         fileType = "image";
         filePreviewUrl = `data:${mimetype || "image/png"};base64,${req.file.buffer.toString("base64")}`;
         try {
-          const worker = await createWorker("eng");
+          const worker = await createWorker("eng", 1, {
+            cachePath: "/tmp",
+          });
           const { data: ocrResult } = await worker.recognize(req.file.buffer);
           await worker.terminate();
           text = ocrResult?.text || "";

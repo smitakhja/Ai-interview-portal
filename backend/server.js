@@ -57,10 +57,6 @@ process.on("uncaughtException", (err) => {
   console.error("Uncaught Exception:", err);
 });
 
-if (process.env.VERCEL !== "1") {
-  app.listen(PORT, HOST, () => {
-    console.log(`AI Interview Portal API running on http://${HOST}:${PORT}`);
-  });
-}
+
 
 export default app;
