@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Bell, User, LogOut, Menu, X } from "lucide-react";
+import { Sparkles, Bell, User, LogOut, Menu, X, Shield } from "lucide-react";
 import { COMPANY_LOGOS } from "../modules.js";
 
 export default function Navbar() {
@@ -9,6 +9,8 @@ export default function Navbar() {
   const navigate = useNavigate();
   const isHome = location.pathname === "/";
   const [menuOpen, setMenuOpen] = useState(false);
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
+  const isAdminPage = location.pathname.startsWith("/admin");
 
   function handleLogout() {
     localStorage.removeItem("userId");
@@ -91,6 +93,16 @@ export default function Navbar() {
           </button>
           {localStorage.getItem("userId") ? (
             <div className="hidden sm:flex items-center gap-2">
+              {/* Admin Panel Button — only shown when isAdmin */}
+              {isAdmin && (
+                <Link
+                  to={isAdminPage ? "/dashboard" : "/admin"}
+                  className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-gradient-to-r from-primary to-lavender text-white shadow-soft hover:opacity-90 transition-opacity"
+                >
+                  <Shield size={12} />
+                  {isAdminPage ? "Main Site" : "Admin"}
+                </Link>
+              )}
               <Link
                 to="/profile"
                 className="w-9 h-9 rounded-full bg-primary-soft border border-border flex items-center justify-center text-primary hover:shadow-glow transition-shadow"
@@ -152,26 +164,38 @@ export default function Navbar() {
                   {label}
                 </Link>
               ))}
-              <div className="border-t border-border pt-3 mt-3 flex items-center gap-2">
-                {localStorage.getItem("userId") ? (
-                  <>
-                    <Link to="/profile" onClick={() => setMenuOpen(false)} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-primary-soft text-primary font-medium">
-                      Profile
-                    </Link>
-                    <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-white border border-border text-ink-soft font-medium">
-                      Log out
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link to="/login" onClick={() => setMenuOpen(false)} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-white border border-border text-ink-soft font-medium">
-                      Log in
-                    </Link>
-                    <Link to="/register" onClick={() => setMenuOpen(false)} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-primary text-white font-medium">
-                      Register
-                    </Link>
-                  </>
+              <div className="border-t border-border pt-3 mt-3 flex flex-col gap-2">
+                {isAdmin && (
+                  <Link
+                    to={isAdminPage ? "/dashboard" : "/admin"}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 text-sm px-3 py-2.5 rounded-xl bg-gradient-to-r from-primary to-lavender text-white font-semibold"
+                  >
+                    <Shield size={14} />
+                    {isAdminPage ? "Go to Main Site" : "Admin Panel"}
+                  </Link>
                 )}
+                <div className="flex items-center gap-2">
+                  {localStorage.getItem("userId") ? (
+                    <>
+                      <Link to="/profile" onClick={() => setMenuOpen(false)} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-primary-soft text-primary font-medium">
+                        Profile
+                      </Link>
+                      <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-white border border-border text-ink-soft font-medium">
+                        Log out
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link to="/login" onClick={() => setMenuOpen(false)} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-white border border-border text-ink-soft font-medium">
+                        Log in
+                      </Link>
+                      <Link to="/register" onClick={() => setMenuOpen(false)} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-primary text-white font-medium">
+                        Register
+                      </Link>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </motion.div>

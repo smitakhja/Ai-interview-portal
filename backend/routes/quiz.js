@@ -1,16 +1,18 @@
 import { Router } from "express";
 import { db } from "../firebaseAdmin.js";
-import { getQuizSet, quizBank } from "../data/quizQuestions.js"; // Fallback if Firebase not seeded
+import { quizBank } from "../data/quizQuestions.js";
+import { nanoid } from "nanoid";
 
 const router = Router();
 
-// Helper to get questions from Firestore with a fallback to local JSON
+function getUserId(req) {
+  return req.header("x-user-id") || "demo-user";
+}
+
 async function getQuestionsFromDb(topic) {
   try {
     const doc = await db.collection("quizzes").doc(topic).get();
-    if (doc.exists) {
-      return doc.data().questions || [];
-    }
+    if (doc.exists) return doc.data().questions || [];
   } catch (err) {
     console.error("Firestore quiz error:", err.message);
   }
@@ -22,11 +24,9 @@ router.get("/topics", async (_req, res) => {
   try {
     const snapshot = await db.collection("quizzes").get();
     if (!snapshot.empty) {
-      const topics = snapshot.docs.map(doc => doc.id);
-      return res.json({ topics });
+      return res.json({ topics: snapshot.docs.map(doc => doc.id) });
     }
   } catch (err) {}
-  // Fallback
   res.json({ topics: Object.keys(quizBank) });
 });
 
@@ -34,36 +34,69 @@ router.get("/topics", async (_req, res) => {
 router.get("/questions", async (req, res) => {
   const { topic = "javascript", count = 5 } = req.query;
   const pool = await getQuestionsFromDb(topic);
-  
-  // Shuffle and pick
   const shuffled = [...pool].sort(() => 0.5 - Math.random());
   const selected = shuffled.slice(0, Number(count));
-  
-  // Strip answers
+  // Strip answers for client
   const questions = selected.map(({ answer, explanation, ...q }) => q);
   res.json({ topic, questions });
 });
 
 // POST /api/quiz/submit  { topic, answers: [{ id, selected }] }
 router.post("/submit", async (req, res) => {
+  const userId = getUserId(req);
   const { topic = "javascript", answers = [] } = req.body;
   const pool = await getQuestionsFromDb(topic);
 
   let correctCount = 0;
   const breakdown = answers.map(({ id, selected }) => {
-    const q = pool.find((item) => item.id === id);
+    const q = pool.find(item => item.id === id);
     const isCorrect = q && q.answer === selected;
-    if (isCorrect) correctCount += 1;
-    return {
-      id,
-      correct: !!isCorrect,
-      correctAnswer: q?.answer,
-      explanation: q?.explanation,
-    };
+    if (isCorrect) correctCount++;
+    return { id, correct: !!isCorrect, correctAnswer: q?.answer, explanation: q?.explanation };
   });
 
   const score = Math.round((correctCount / Math.max(answers.length, 1)) * 100);
-  res.json({ success: true, score, correctCount, total: answers.length, breakdown });
+
+  // Save to Firestore
+  const resultId = nanoid();
+  const result = {
+    id: resultId,
+    userId,
+    topic,
+    score,
+    correctCount,
+    total: answers.length,
+    breakdown,
+    createdAt: new Date().toISOString(),
+  };
+
+  try {
+    await db
+      .collection("users").doc(userId)
+      .collection("quizResults").doc(resultId)
+      .set(result);
+  } catch (err) {
+    console.error("Firestore quiz save error:", err.message);
+  }
+
+  res.json({ success: true, score, correctCount, total: answers.length, breakdown, resultId });
+});
+
+// GET /api/quiz/history
+router.get("/history", async (req, res) => {
+  const userId = getUserId(req);
+  try {
+    const snap = await db
+      .collection("users").doc(userId)
+      .collection("quizResults")
+      .orderBy("createdAt", "desc")
+      .limit(20)
+      .get();
+    return res.json({ success: true, history: snap.docs.map(d => d.data()) });
+  } catch (err) {
+    console.error("Firestore quiz history error:", err.message);
+    res.json({ success: true, history: [] });
+  }
 });
 
 export default router;

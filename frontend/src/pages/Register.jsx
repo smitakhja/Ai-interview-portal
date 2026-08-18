@@ -1,18 +1,24 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import PageShell from "../components/PageShell.jsx";
 import api from "../api.js";
-import { Chrome, Apple } from "lucide-react";
+import { Chrome, Apple, Sparkles, Loader2, AlertCircle, X, UserPlus } from "lucide-react";
+import { firebaseConfigured as FIREBASE_CONFIGURED } from "../firebase.js";
 
 export default function Register() {
   const [userId, setUserId] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   async function submit(e) {
-    e.preventDefault();
-    const id = (userId || name).trim().toLowerCase().replace(/\s+/g, "-") || "demo-user";
+    if (e && e.preventDefault) e.preventDefault();
+    setError("");
+    const id =
+      (userId || name).trim().toLowerCase().replace(/\s+/g, "-") || "demo-user";
 
     const profile = {
       name: name || "Demo User",
@@ -23,62 +29,169 @@ export default function Register() {
       avatarColor: "#3457D5",
     };
 
-    // Try to create on backend; if it fails, fall back to localStorage
+    setLoading(true);
     try {
-      await api.post("/profile", { profile }, { headers: { "x-user-id": id } });
+      await api.put("/profile", profile, { headers: { "x-user-id": id } });
     } catch (err) {
       localStorage.setItem(`userProfile_${id}`, JSON.stringify(profile));
     }
-
     localStorage.setItem("userId", id);
+    setLoading(false);
     navigate("/dashboard");
   }
 
+  const handleGoogleSignUp = async () => {
+    if (!FIREBASE_CONFIGURED) {
+      setError(
+        "Google Sign-Up requires Firebase to be configured. Use the form above to create a demo account, or add your Firebase credentials to the .env file."
+      );
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const { signInWithPopup } = await import("firebase/auth");
+      const { auth, googleProvider } = await import("../firebase.js");
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      localStorage.setItem("userId", user.uid);
+      localStorage.setItem("userEmail", user.email);
+      localStorage.setItem("userName", user.displayName);
+      try {
+        await api.post("/auth/login", {
+          userId: user.uid,
+          email: user.email,
+          name: user.displayName,
+        });
+      } catch (err) {
+        console.warn("Backend sync failed:", err);
+      }
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Firebase Auth Error:", err);
+      setError(
+        err.code === "auth/popup-closed-by-user"
+          ? "Sign-in popup was closed. Please try again."
+          : `Google sign-up failed: ${err.message}`
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <PageShell>
-      <div className="max-w-md mx-auto mt-12">
-        <h1 className="text-2xl font-bold mb-4">Create an account</h1>
-
-        <form onSubmit={submit} className="card p-6 space-y-4">
-          <div>
-            <label className="text-xs font-semibold text-ink-soft mb-1.5 block">Full name</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className="w-full border border-border rounded-xl px-4 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/30" />
+      <div className="max-w-md mx-auto mt-8 sm:mt-16 px-4">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <div className="inline-flex items-center gap-2 bg-primary-soft border border-primary/10 rounded-full px-4 py-1.5 text-xs font-semibold text-primary mb-4">
+            <Sparkles size={13} /> AI Interview Portal
           </div>
+          <h1 className="font-display text-3xl font-bold text-ink">Create an account</h1>
+          <p className="text-sm text-ink-soft mt-2">Start your interview prep journey</p>
+        </motion.div>
 
-          <div>
-            <label className="text-xs font-semibold text-ink-soft mb-1.5 block">Email</label>
-            <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="w-full border border-border rounded-xl px-4 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/30" />
-          </div>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="card p-6 sm:p-8 space-y-5"
+        >
+          {/* Error Banner */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="flex items-start gap-3 bg-coral-soft border border-coral/20 rounded-xl p-4 text-sm text-coral"
+              >
+                <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                <p className="flex-1 leading-relaxed">{error}</p>
+                <button onClick={() => setError("")} className="shrink-0 hover:opacity-70">
+                  <X size={14} />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          <div>
-            <label className="text-xs font-semibold text-ink-soft mb-1.5 block">User ID (optional)</label>
-            <input value={userId} onChange={(e) => setUserId(e.target.value)} placeholder="username (e.g. alice)" className="w-full border border-border rounded-xl px-4 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/30" />
-            <p className="text-xs text-ink-soft mt-2">This will be used to identify your account locally.</p>
-          </div>
+          <form onSubmit={submit} className="space-y-4">
+            <div>
+              <label className="text-xs font-semibold text-ink-soft mb-1.5 block">Full name</label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                className="w-full border border-border rounded-xl px-4 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 bg-paper placeholder:text-ink-faint"
+                autoComplete="name"
+              />
+            </div>
 
-          <div className="flex justify-end mb-2">
-            <button className="btn-primary w-full" type="submit">Create account</button>
-          </div>
+            <div>
+              <label className="text-xs font-semibold text-ink-soft mb-1.5 block">Email</label>
+              <input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                type="email"
+                className="w-full border border-border rounded-xl px-4 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 bg-paper placeholder:text-ink-faint"
+                autoComplete="email"
+              />
+            </div>
 
-          <div className="relative my-6">
+            <div>
+              <label className="text-xs font-semibold text-ink-soft mb-1.5 block">
+                User ID <span className="text-ink-faint font-normal">(optional)</span>
+              </label>
+              <input
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                placeholder="username (e.g. alice)"
+                className="w-full border border-border rounded-xl px-4 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 bg-paper placeholder:text-ink-faint"
+                autoComplete="username"
+              />
+              <p className="text-xs text-ink-faint mt-2">
+                Used to identify your account locally. Defaults to your name if left blank.
+              </p>
+            </div>
+
+            <button
+              className="btn-primary w-full flex justify-center items-center gap-2 py-3"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <UserPlus size={16} />
+              )}
+              {loading ? "Creating account…" : "Create account"}
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border"></div>
+              <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="bg-surface px-2 text-ink-faint uppercase tracking-wider">Or continue with</span>
+              <span className="bg-surface px-3 text-ink-faint uppercase tracking-wider">
+                Or sign up with
+              </span>
             </div>
           </div>
 
+          {/* Social buttons */}
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => {
-                setUserId("google-user");
-                setName("Google User");
-                setEmail("google@example.com");
-                submit({ preventDefault: () => {} });
-              }}
-              className="flex items-center justify-center gap-2 rounded-xl bg-white text-ink font-semibold px-4 py-2.5 border border-border transition-all duration-200 hover:shadow-soft hover:border-border/80"
+              onClick={handleGoogleSignUp}
+              disabled={loading}
+              className="flex items-center justify-center gap-2 rounded-xl bg-white text-ink font-semibold px-4 py-2.5 border border-border transition-all duration-200 hover:shadow-soft hover:border-primary/20 disabled:opacity-50"
             >
               <Chrome size={18} className="text-[#4285F4]" />
               <span className="text-sm">Google</span>
@@ -86,18 +199,41 @@ export default function Register() {
             <button
               type="button"
               onClick={() => {
-                setUserId("apple-user");
-                setName("Apple User");
-                setEmail("apple@example.com");
-                submit({ preventDefault: () => {} });
+                if (!FIREBASE_CONFIGURED) {
+                  setError("Apple Sign-In requires Firebase to be configured. Use the form above instead.");
+                  return;
+                }
               }}
-              className="flex items-center justify-center gap-2 rounded-xl bg-ink text-white font-semibold px-4 py-2.5 border border-ink transition-all duration-200 hover:shadow-soft hover:bg-ink/90"
+              disabled={loading}
+              className="flex items-center justify-center gap-2 rounded-xl bg-ink text-white font-semibold px-4 py-2.5 border border-ink transition-all duration-200 hover:shadow-soft hover:bg-ink/90 disabled:opacity-50"
             >
               <Apple size={18} />
               <span className="text-sm">Apple</span>
             </button>
           </div>
-        </form>
+
+          {!FIREBASE_CONFIGURED && (
+            <p className="text-center text-xs text-ink-faint leading-relaxed">
+              Social sign-in needs a Firebase project.{" "}
+              <a
+                href="https://console.firebase.google.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                Set it up here
+              </a>
+            </p>
+          )}
+        </motion.div>
+
+        {/* Login link */}
+        <p className="text-center text-sm text-ink-soft mt-6">
+          Already have an account?{" "}
+          <Link to="/login" className="text-primary font-semibold hover:underline">
+            Sign in
+          </Link>
+        </p>
       </div>
     </PageShell>
   );

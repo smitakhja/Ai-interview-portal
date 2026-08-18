@@ -1,28 +1,36 @@
-import admin from "firebase-admin";
+import { initializeApp, getApps, cert } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
+import { getAuth } from "firebase-admin/auth";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-// TODO: Replace this with your actual service account credentials JSON string
-// You can get this from Firebase Console -> Project Settings -> Service Accounts -> Generate New Private Key
-// Save the JSON string into an environment variable named FIREBASE_SERVICE_ACCOUNT
+let _app;
 try {
-  if (!admin.apps.length) {
+  if (!getApps().length) {
     if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-      });
-      console.log("Firebase Admin initialized securely.");
+      // If user pasted raw JSON
+      let serviceAccount;
+      try {
+        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+      } catch (e) {
+        console.error("Invalid JSON in FIREBASE_SERVICE_ACCOUNT");
+      }
+      
+      if (serviceAccount) {
+        _app = initializeApp({ credential: cert(serviceAccount) });
+        console.log("🔥 Firebase Admin initialized securely.");
+      }
     } else {
-      console.warn("FIREBASE_SERVICE_ACCOUNT is missing. Firebase Admin is running in unauthenticated stub mode.");
-      // Initialize without credentials (will fail if accessing protected resources)
-      admin.initializeApp();
+      console.warn("⚠️ FIREBASE_SERVICE_ACCOUNT missing. Firebase Admin is running in unauthenticated stub mode. Database writes will fail on Vercel.");
+      _app = initializeApp();
     }
+  } else {
+    _app = getApps()[0];
   }
 } catch (error) {
   console.error("Firebase Admin initialization error:", error);
 }
 
-export const db = admin.firestore();
-export const auth = admin.auth();
+export const db = _app ? getFirestore(_app) : null;
+export const auth = _app ? getAuth(_app) : null;

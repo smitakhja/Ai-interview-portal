@@ -2,6 +2,8 @@ import { Router } from "express";
 import multer from "multer";
 import { analyzeResumeText } from "../utils/analyzer.js";
 import { createWorker } from "tesseract.js";
+import { db } from "../firebaseAdmin.js";
+import { nanoid } from "nanoid";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 
@@ -15,12 +17,17 @@ try {
     openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
 } catch (e) {
-  console.warn("OpenAI API key not configured or invalid for Resume Analyzer.");
+  console.warn("OpenAI API key not configured.");
 }
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
 });
+
+function getUserId(req) {
+  return req.header("x-user-id") || "demo-user";
+}
 
 async function extractPdfText(buffer) {
   let text = "";
@@ -40,31 +47,29 @@ async function extractPdfText(buffer) {
       for (let i = 1; i <= doc.numPages; i++) {
         const page = await doc.getPage(i);
         const content = await page.getTextContent();
-        const pageText = content.items.map((item) => item.str).join(" ");
-        fullText += " " + pageText;
+        fullText += " " + content.items.map(item => item.str).join(" ");
       }
-      if (fullText.trim().length > text.trim().length) {
-        text = fullText;
-      }
+      if (fullText.trim().length > text.trim().length) text = fullText;
     } catch (pdfjsErr) {
       console.error("pdfjs extraction error:", pdfjsErr);
     }
   }
-
   return text;
 }
 
-// POST /api/resume/analyze (multipart/form-data, field name: "resume")
-// Accepts PDF, TXT, or Image files (PNG, JPG, WEBP), or raw text JSON.
+// POST /api/resume/analyze (multipart/form-data, field: "resume")
 router.post("/analyze", upload.single("resume"), async (req, res) => {
+  const userId = getUserId(req);
   try {
     let text = req.body?.text || "";
     let filePreviewUrl = null;
     let fileType = "text";
+    let fileName = req.body?.fileName || "resume";
 
     if (req.file) {
       const mimetype = req.file.mimetype || "";
       const filename = req.file.originalname.toLowerCase();
+      fileName = req.file.originalname;
       const isPdf = mimetype === "application/pdf" || filename.endsWith(".pdf");
       const isImage = mimetype.startsWith("image/") || /\.(png|jpg|jpeg|webp|bmp)$/i.test(filename);
 
@@ -89,8 +94,7 @@ router.post("/analyze", upload.single("resume"), async (req, res) => {
 
     if (!text || text.trim().length < 15) {
       return res.status(400).json({
-        error:
-          "Unable to extract readable text (min 15 characters) from this file. Please upload a readable text resume (PDF or TXT) or an image/photo of your resume (PNG, JPG, or WEBP).",
+        error: "Unable to extract readable text from this file. Please upload a readable PDF, TXT, or image of your resume.",
       });
     }
 
@@ -101,19 +105,41 @@ router.post("/analyze", upload.single("resume"), async (req, res) => {
     if (openai && text.trim().length >= 15) {
       try {
         const prompt = `You are an expert ATS resume reviewer and career coach. 
-The user has uploaded their resume text (or a part of it). 
-Review the following text, and provide a short, improved, rewritten version of it that sounds more professional, uses strong action verbs, and is ATS-friendly. 
-Keep it concise. If the text is completely garbled or unreadable (like random characters from bad OCR), politely inform the user that the text couldn't be read properly and ask them for a clearer image or PDF.
+Review the following resume text and provide a short, improved, rewritten version that sounds more professional, uses strong action verbs, and is ATS-friendly. Keep it concise.
 Original Text: "${extractedSnippet}"`;
-
         const response = await openai.chat.completions.create({
           model: "gpt-4o-mini",
-          messages: [{ role: "system", content: prompt }]
+          messages: [{ role: "system", content: prompt }],
         });
         improvedText = response.choices[0].message.content;
       } catch (aiErr) {
         console.error("OpenAI resume improvement failed:", aiErr);
       }
+    }
+
+    // Save analysis to Firestore
+    const analysisId = nanoid();
+    const analysis = {
+      id: analysisId,
+      userId,
+      fileName,
+      fileType,
+      score: result.score || 0,
+      skills: result.skills || [],
+      strengths: result.strengths || [],
+      improvements: result.improvements || [],
+      extractedSnippet,
+      improvedText,
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      await db
+        .collection("users").doc(userId)
+        .collection("resumeAnalyses").doc(analysisId)
+        .set(analysis);
+    } catch (dbErr) {
+      console.error("Firestore resume save error:", dbErr.message);
     }
 
     res.json({
@@ -122,11 +148,29 @@ Original Text: "${extractedSnippet}"`;
       filePreviewUrl,
       extractedSnippet,
       improvedText,
+      analysisId,
       ...result,
     });
   } catch (err) {
     console.error("Resume analysis server error:", err);
-    res.status(500).json({ error: "Failed to analyze document. Please try again with a valid PDF, TXT, or image file." });
+    res.status(500).json({ error: "Failed to analyze document. Please try again." });
+  }
+});
+
+// GET /api/resume/history
+router.get("/history", async (req, res) => {
+  const userId = getUserId(req);
+  try {
+    const snap = await db
+      .collection("users").doc(userId)
+      .collection("resumeAnalyses")
+      .orderBy("createdAt", "desc")
+      .limit(10)
+      .get();
+    return res.json({ success: true, history: snap.docs.map(d => d.data()) });
+  } catch (err) {
+    console.error("Firestore resume history error:", err.message);
+    res.json({ success: true, history: [] });
   }
 });
 

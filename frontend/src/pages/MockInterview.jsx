@@ -65,7 +65,7 @@ export default function MockInterview() {
     if (index + 1 < questions.length) {
       setIndex(index + 1);
     } else {
-      const { data } = await api.post("/interview/finish", { results });
+      const { data } = await api.post("/interview/finish", { results, role });
       await api.post("/progress/update", { module: "mockInterview", score: data.averageScore });
       setSummary(data);
       setStage("summary");
