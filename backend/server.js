@@ -17,14 +17,12 @@ import dashboardRoutes from "./routes/dashboard.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
-const HOST = process.env.HOST || "127.0.0.1";
 
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || "*" }));
 app.use(express.json({ limit: "2mb" }));
 
 app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", service: "ai-interview-portal-backend" });
+  res.json({ status: "ok", service: "ai-interview-portal-backend", db: "supabase" });
 });
 
 app.use("/api/resume", resumeRoutes);
@@ -56,7 +54,5 @@ process.on("unhandledRejection", (reason) => {
 process.on("uncaughtException", (err) => {
   console.error("Uncaught Exception:", err);
 });
-
-
 
 export default app;

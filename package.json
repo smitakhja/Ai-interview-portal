@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.3",
+    "@supabase/supabase-js": "^2.112.3",
     "@vercel/analytics": "^2.0.1",
     "autoprefixer": "^10.5.4",
     "axios": "^1.18.1",

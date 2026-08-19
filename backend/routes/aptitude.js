@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../firebaseAdmin.js";
+import { supabase } from "../supabaseClient.js";
 import { aptitudeBank } from "../data/aptitudeQuestions.js";
 import { nanoid } from "nanoid";
 
@@ -9,20 +9,10 @@ function getUserId(req) {
   return req.header("x-user-id") || "demo-user";
 }
 
-async function getAptitudeQuestionsFromDb() {
-  try {
-    const snapshot = await db.collection("aptitude").get();
-    if (!snapshot.empty) return snapshot.docs.map(doc => doc.data());
-  } catch (err) {
-    console.error("Firestore aptitude error:", err.message);
-  }
-  return aptitudeBank || [];
-}
-
 // GET /api/aptitude/questions?count=8
-router.get("/questions", async (req, res) => {
+router.get("/questions", (req, res) => {
   const { count = 8 } = req.query;
-  const pool = await getAptitudeQuestionsFromDb();
+  const pool = aptitudeBank || [];
   const shuffled = [...pool].sort(() => 0.5 - Math.random());
   const questions = shuffled.slice(0, Number(count)).map(({ answer, ...q }) => q);
   res.json({ questions });
@@ -32,7 +22,7 @@ router.get("/questions", async (req, res) => {
 router.post("/submit", async (req, res) => {
   const userId = getUserId(req);
   const { answers = [] } = req.body;
-  const pool = await getAptitudeQuestionsFromDb();
+  const pool = aptitudeBank || [];
 
   let correctCount = 0;
   const byCategory = {};
@@ -49,27 +39,22 @@ router.post("/submit", async (req, res) => {
   });
 
   const score = Math.round((correctCount / Math.max(answers.length, 1)) * 100);
-
-  // Save to Firestore
   const resultId = nanoid();
-  const result = {
-    id: resultId,
-    userId,
-    score,
-    correctCount,
-    total: answers.length,
-    byCategory,
-    breakdown,
-    createdAt: new Date().toISOString(),
-  };
 
   try {
-    await db
-      .collection("users").doc(userId)
-      .collection("aptitudeResults").doc(resultId)
-      .set(result);
+    if (supabase) {
+      await supabase.from("aptitude_results").insert({
+        id: resultId,
+        user_id: userId,
+        score,
+        correct_count: correctCount,
+        total: answers.length,
+        by_category: byCategory,
+        breakdown,
+      });
+    }
   } catch (err) {
-    console.error("Firestore aptitude save error:", err.message);
+    console.error("Supabase aptitude save error:", err.message);
   }
 
   res.json({ success: true, score, correctCount, total: answers.length, byCategory, breakdown, resultId });
@@ -79,15 +64,31 @@ router.post("/submit", async (req, res) => {
 router.get("/history", async (req, res) => {
   const userId = getUserId(req);
   try {
-    const snap = await db
-      .collection("users").doc(userId)
-      .collection("aptitudeResults")
-      .orderBy("createdAt", "desc")
-      .limit(20)
-      .get();
-    return res.json({ success: true, history: snap.docs.map(d => d.data()) });
+    if (!supabase) throw new Error("Supabase not configured");
+
+    const { data, error } = await supabase
+      .from("aptitude_results")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    if (error) throw error;
+
+    const history = (data || []).map(d => ({
+      id: d.id,
+      userId: d.user_id,
+      score: d.score,
+      correctCount: d.correct_count,
+      total: d.total,
+      byCategory: d.by_category,
+      breakdown: d.breakdown,
+      createdAt: d.created_at,
+    }));
+
+    return res.json({ success: true, history });
   } catch (err) {
-    console.error("Firestore aptitude history error:", err.message);
+    console.error("Supabase aptitude history error:", err.message);
     res.json({ success: true, history: [] });
   }
 });

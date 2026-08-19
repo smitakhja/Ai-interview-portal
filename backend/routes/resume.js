@@ -2,7 +2,7 @@ import { Router } from "express";
 import multer from "multer";
 import { analyzeResumeText } from "../utils/analyzer.js";
 import { createWorker } from "tesseract.js";
-import { db } from "../firebaseAdmin.js";
+import { supabase } from "../supabaseClient.js";
 import { nanoid } from "nanoid";
 import OpenAI from "openai";
 import dotenv from "dotenv";
@@ -57,7 +57,7 @@ async function extractPdfText(buffer) {
   return text;
 }
 
-// POST /api/resume/analyze (multipart/form-data, field: "resume")
+// POST /api/resume/analyze
 router.post("/analyze", upload.single("resume"), async (req, res) => {
   const userId = getUserId(req);
   try {
@@ -77,9 +77,7 @@ router.post("/analyze", upload.single("resume"), async (req, res) => {
         fileType = "image";
         filePreviewUrl = `data:${mimetype || "image/png"};base64,${req.file.buffer.toString("base64")}`;
         try {
-          const worker = await createWorker("eng", 1, {
-            cachePath: "/tmp",
-          });
+          const worker = await createWorker("eng", 1, { cachePath: "/tmp" });
           const { data: ocrResult } = await worker.recognize(req.file.buffer);
           await worker.terminate();
           text = ocrResult?.text || "";
@@ -119,29 +117,25 @@ Original Text: "${extractedSnippet}"`;
       }
     }
 
-    // Save analysis to Firestore
+    // Save to Supabase
     const analysisId = nanoid();
-    const analysis = {
-      id: analysisId,
-      userId,
-      fileName,
-      fileType,
-      score: result.score || 0,
-      skills: result.skills || [],
-      strengths: result.strengths || [],
-      improvements: result.improvements || [],
-      extractedSnippet,
-      improvedText,
-      createdAt: new Date().toISOString(),
-    };
-
     try {
-      await db
-        .collection("users").doc(userId)
-        .collection("resumeAnalyses").doc(analysisId)
-        .set(analysis);
+      if (supabase) {
+        await supabase.from("resume_analyses").insert({
+          id: analysisId,
+          user_id: userId,
+          file_name: fileName,
+          file_type: fileType,
+          score: result.score || 0,
+          skills: result.skills || [],
+          strengths: result.strengths || [],
+          improvements: result.improvements || [],
+          extracted_snippet: extractedSnippet,
+          improved_text: improvedText,
+        });
+      }
     } catch (dbErr) {
-      console.error("Firestore resume save error:", dbErr.message);
+      console.error("Supabase resume save error:", dbErr.message);
     }
 
     res.json({
@@ -163,15 +157,34 @@ Original Text: "${extractedSnippet}"`;
 router.get("/history", async (req, res) => {
   const userId = getUserId(req);
   try {
-    const snap = await db
-      .collection("users").doc(userId)
-      .collection("resumeAnalyses")
-      .orderBy("createdAt", "desc")
-      .limit(10)
-      .get();
-    return res.json({ success: true, history: snap.docs.map(d => d.data()) });
+    if (!supabase) throw new Error("Supabase not configured");
+
+    const { data, error } = await supabase
+      .from("resume_analyses")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (error) throw error;
+
+    const history = (data || []).map(d => ({
+      id: d.id,
+      userId: d.user_id,
+      fileName: d.file_name,
+      fileType: d.file_type,
+      score: d.score,
+      skills: d.skills,
+      strengths: d.strengths,
+      improvements: d.improvements,
+      extractedSnippet: d.extracted_snippet,
+      improvedText: d.improved_text,
+      createdAt: d.created_at,
+    }));
+
+    return res.json({ success: true, history });
   } catch (err) {
-    console.error("Firestore resume history error:", err.message);
+    console.error("Supabase resume history error:", err.message);
     res.json({ success: true, history: [] });
   }
 });

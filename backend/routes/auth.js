@@ -1,39 +1,42 @@
 import { Router } from "express";
-import { db } from "../firebaseAdmin.js";
+import { supabase } from "../supabaseClient.js";
 
 const router = Router();
 
 // POST /api/auth/login
 router.post("/login", async (req, res) => {
   const { userId, email, name } = req.body;
-  
+
   if (!userId) {
     return res.status(400).json({ error: "userId is required" });
   }
 
   try {
-    // Check if user exists in Firestore
-    const userRef = db.collection("users").doc(userId);
-    const doc = await userRef.get();
-    
-    let user;
-    if (doc.exists) {
-      user = doc.data();
-    } else {
-      // Create a new user document
-      user = {
-        id: userId,
-        email: email || userId,
-        full_name: name || userId,
-        created_at: new Date().toISOString()
-      };
-      await userRef.set(user);
+    if (!supabase) throw new Error("Supabase not configured");
+
+    // Check if user exists
+    const { data: existing } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (existing) {
+      return res.json({ success: true, message: "Login successful", user: existing });
     }
 
-    res.json({ success: true, message: "Login successful", user });
+    // Create new user
+    const user = {
+      id: userId,
+      email: email || userId,
+      full_name: name || userId,
+    };
+    const { data, error } = await supabase.from("users").insert(user).select().single();
+    if (error) throw error;
+
+    res.json({ success: true, message: "Login successful", user: data });
   } catch (error) {
-    console.error("Firestore Login API Error:", error.message);
-    // If DB fails (e.g. no credentials), just return a success payload so the frontend doesn't break
+    console.error("Supabase Login Error:", error.message);
     res.json({ success: true, message: "Login successful (fallback)", userId });
   }
 });

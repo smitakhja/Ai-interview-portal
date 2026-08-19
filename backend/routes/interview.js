@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { db } from "../firebaseAdmin.js";
-import { getInterviewSet, interviewQuestions } from "../data/interviewQuestions.js";
+import { supabase } from "../supabaseClient.js";
+import { interviewQuestions } from "../data/interviewQuestions.js";
 import { scoreAnswer } from "../utils/analyzer.js";
 import { nanoid } from "nanoid";
 
@@ -10,31 +10,15 @@ function getUserId(req) {
   return req.header("x-user-id") || "demo-user";
 }
 
-async function getQuestionsFromDb(role) {
-  try {
-    const doc = await db.collection("interviews").doc(role).get();
-    if (doc.exists) return doc.data().questions || [];
-  } catch (err) {
-    console.error("Firestore interview error:", err.message);
-  }
-  return interviewQuestions[role] || interviewQuestions["software-engineer"] || [];
-}
-
 // GET /api/interview/roles
-router.get("/roles", async (_req, res) => {
-  try {
-    const snapshot = await db.collection("interviews").get();
-    if (!snapshot.empty) {
-      return res.json({ roles: snapshot.docs.map(doc => doc.id) });
-    }
-  } catch (err) {}
+router.get("/roles", (_req, res) => {
   res.json({ roles: Object.keys(interviewQuestions) });
 });
 
 // GET /api/interview/questions?role=software-engineer&count=5
-router.get("/questions", async (req, res) => {
+router.get("/questions", (req, res) => {
   const { role = "software-engineer", count = 5 } = req.query;
-  const pool = await getQuestionsFromDb(role);
+  const pool = interviewQuestions[role] || interviewQuestions["software-engineer"] || [];
   const shuffled = [...pool].sort(() => 0.5 - Math.random());
   res.json({ role, questions: shuffled.slice(0, Number(count)) });
 });
@@ -62,26 +46,22 @@ router.post("/finish", async (req, res) => {
     avg >= 55 ? "Good progress, keep practicing." :
     "Needs more preparation.";
 
-  // Save to Firestore
   const sessionId = nanoid();
-  const session = {
-    id: sessionId,
-    userId,
-    role,
-    results,
-    averageScore: avg,
-    verdict,
-    questionsCount: results.length,
-    createdAt: new Date().toISOString(),
-  };
 
   try {
-    await db
-      .collection("users").doc(userId)
-      .collection("interviewSessions").doc(sessionId)
-      .set(session);
+    if (supabase) {
+      await supabase.from("interview_sessions").insert({
+        id: sessionId,
+        user_id: userId,
+        role,
+        results,
+        average_score: avg,
+        verdict,
+        questions_count: results.length,
+      });
+    }
   } catch (err) {
-    console.error("Firestore interview save error:", err.message);
+    console.error("Supabase interview save error:", err.message);
   }
 
   res.json({ success: true, averageScore: avg, verdict, sessionId });
@@ -91,17 +71,31 @@ router.post("/finish", async (req, res) => {
 router.get("/history", async (req, res) => {
   const userId = getUserId(req);
   try {
-    const snap = await db
-      .collection("users").doc(userId)
-      .collection("interviewSessions")
-      .orderBy("createdAt", "desc")
-      .limit(20)
-      .get();
+    if (!supabase) throw new Error("Supabase not configured");
 
-    const history = snap.docs.map(d => d.data());
+    const { data, error } = await supabase
+      .from("interview_sessions")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    if (error) throw error;
+
+    const history = (data || []).map(d => ({
+      id: d.id,
+      userId: d.user_id,
+      role: d.role,
+      results: d.results,
+      averageScore: d.average_score,
+      verdict: d.verdict,
+      questionsCount: d.questions_count,
+      createdAt: d.created_at,
+    }));
+
     return res.json({ success: true, history });
   } catch (err) {
-    console.error("Firestore interview history error:", err.message);
+    console.error("Supabase interview history error:", err.message);
     res.json({ success: true, history: [] });
   }
 });

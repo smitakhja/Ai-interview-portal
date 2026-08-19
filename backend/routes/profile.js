@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../firebaseAdmin.js";
+import { supabase } from "../supabaseClient.js";
 
 const router = Router();
 const store = new Map();
@@ -23,23 +23,28 @@ function getDefault() {
 router.get("/", async (req, res) => {
   const userId = getUserId(req);
   try {
-    const doc = await db.collection("profiles").doc(userId).get();
-    if (doc.exists) {
-      const user = doc.data();
+    if (!supabase) throw new Error("Supabase not configured");
+
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("user_id", userId)
+      .single();
+
+    if (data && !error) {
       return res.json({
-        name: user.full_name || user.name,
-        email: user.email,
-        targetRole: user.targetRole || "Software Engineer",
-        experience: user.experience || "1-3 years",
-        skills: user.skills || ["JavaScript", "React", "Node.js", "SQL"],
-        avatarColor: user.avatarColor || "#3457D5",
+        name: data.full_name || data.email,
+        email: data.email,
+        targetRole: data.target_role || "Software Engineer",
+        experience: data.experience || "1-3 years",
+        skills: data.skills || ["JavaScript", "React", "Node.js", "SQL"],
+        avatarColor: data.avatar_color || "#3457D5",
       });
     }
   } catch (err) {
-    console.error("Firestore Error (profile GET):", err.message);
+    console.error("Supabase Error (profile GET):", err.message);
   }
-  
-  // Fallback to memory store
+
   res.json(store.get(userId) || getDefault());
 });
 
@@ -49,19 +54,24 @@ router.put("/", async (req, res) => {
   const current = store.get(userId) || getDefault();
   const updated = { ...current, ...req.body };
   store.set(userId, updated);
-  
+
   try {
-    await db.collection("profiles").doc(userId).set({
+    if (!supabase) throw new Error("Supabase not configured");
+
+    const row = {
+      user_id: userId,
       full_name: updated.name || "Unknown",
       email: updated.email || userId + "@example.com",
-      targetRole: updated.targetRole || "",
+      target_role: updated.targetRole || "",
       experience: updated.experience || "",
       skills: updated.skills || [],
-      avatarColor: updated.avatarColor || "#3457D5",
-      updatedAt: new Date().toISOString()
-    }, { merge: true });
+      avatar_color: updated.avatarColor || "#3457D5",
+      updated_at: new Date().toISOString(),
+    };
+
+    await supabase.from("profiles").upsert(row, { onConflict: "user_id" });
   } catch (err) {
-    console.error("Firestore Error (profile PUT):", err.message);
+    console.error("Supabase Error (profile PUT):", err.message);
   }
 
   res.json({ success: true, profile: updated });

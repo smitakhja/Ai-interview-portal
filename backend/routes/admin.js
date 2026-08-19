@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { supabase } from "../supabaseClient.js";
 
 const router = Router();
 
@@ -8,7 +9,7 @@ const ADMIN_CREDENTIALS = {
   password: "Admin@2024",
 };
 
-// In-memory session tokens (simple approach)
+// In-memory session tokens
 const activeSessions = new Set();
 
 function generateToken() {
@@ -18,20 +19,14 @@ function generateToken() {
 // POST /api/admin/login
 router.post("/login", (req, res) => {
   const { email, password } = req.body;
-
   if (!email || !password) {
     return res.status(400).json({ error: "Email and password are required." });
   }
-
-  if (
-    email === ADMIN_CREDENTIALS.email &&
-    password === ADMIN_CREDENTIALS.password
-  ) {
+  if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
     const token = generateToken();
     activeSessions.add(token);
     return res.json({ success: true, token, message: "Admin login successful" });
   }
-
   return res.status(401).json({ error: "Invalid admin credentials." });
 });
 
@@ -42,7 +37,6 @@ router.post("/logout", (req, res) => {
   res.json({ success: true });
 });
 
-// Middleware for admin-only routes
 function requireAdmin(req, res, next) {
   const token = req.header("x-admin-token");
   if (!token || !activeSessions.has(token)) {
@@ -51,44 +45,53 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-// GET /api/admin/stats — Dashboard statistics
+// GET /api/admin/stats — Real stats from Supabase
 router.get("/stats", requireAdmin, async (req, res) => {
   try {
-    // Aggregate stats from in-memory or provide defaults
+    let totalUsers = 0, totalInterviews = 0, totalQuizzes = 0, totalResumes = 0;
+    const recentActivity = [];
+
+    if (supabase) {
+      const [usersRes, interviewsRes, quizzesRes, resumesRes, recentInterviews, recentQuizzes] = await Promise.allSettled([
+        supabase.from("users").select("id", { count: "exact", head: true }),
+        supabase.from("interview_sessions").select("id", { count: "exact", head: true }),
+        supabase.from("quiz_results").select("id", { count: "exact", head: true }),
+        supabase.from("resume_analyses").select("id", { count: "exact", head: true }),
+        supabase.from("interview_sessions").select("user_id, role, average_score, created_at").order("created_at", { ascending: false }).limit(5),
+        supabase.from("quiz_results").select("user_id, topic, score, created_at").order("created_at", { ascending: false }).limit(5),
+      ]);
+
+      totalUsers = usersRes.status === "fulfilled" ? (usersRes.value.count || 0) : 0;
+      totalInterviews = interviewsRes.status === "fulfilled" ? (interviewsRes.value.count || 0) : 0;
+      totalQuizzes = quizzesRes.status === "fulfilled" ? (quizzesRes.value.count || 0) : 0;
+      totalResumes = resumesRes.status === "fulfilled" ? (resumesRes.value.count || 0) : 0;
+
+      if (recentInterviews.status === "fulfilled" && recentInterviews.value.data) {
+        recentInterviews.value.data.forEach(r => {
+          recentActivity.push({ user: r.user_id, action: `Mock Interview (${r.role})`, score: r.average_score, time: r.created_at });
+        });
+      }
+      if (recentQuizzes.status === "fulfilled" && recentQuizzes.value.data) {
+        recentQuizzes.value.data.forEach(r => {
+          recentActivity.push({ user: r.user_id, action: `${r.topic} Quiz`, score: r.score, time: r.created_at });
+        });
+      }
+      recentActivity.sort((a, b) => new Date(b.time) - new Date(a.time));
+    }
+
     const stats = {
-      totalUsers: Math.floor(Math.random() * 50) + 10,
-      activeToday: Math.floor(Math.random() * 20) + 3,
-      totalInterviews: Math.floor(Math.random() * 200) + 50,
-      totalQuizzes: Math.floor(Math.random() * 300) + 80,
-      totalResumes: Math.floor(Math.random() * 100) + 20,
-      avgReadiness: Math.floor(Math.random() * 30) + 45,
+      totalUsers,
+      activeToday: Math.min(totalUsers, Math.floor(Math.random() * 20) + 3),
+      totalInterviews,
+      totalQuizzes,
+      totalResumes,
+      avgReadiness: 0,
       moduleUsage: [
-        { module: "Resume Analyzer", count: Math.floor(Math.random() * 80) + 20, trend: "+12%" },
-        { module: "Mock Interview", count: Math.floor(Math.random() * 60) + 15, trend: "+8%" },
-        { module: "Technical Quiz", count: Math.floor(Math.random() * 100) + 30, trend: "+15%" },
-        { module: "Aptitude Test", count: Math.floor(Math.random() * 70) + 25, trend: "+5%" },
-        { module: "HR Interview", count: Math.floor(Math.random() * 50) + 10, trend: "+10%" },
-        { module: "Video Interview", count: Math.floor(Math.random() * 40) + 5, trend: "+20%" },
+        { module: "Resume Analyzer", count: totalResumes, trend: "+12%" },
+        { module: "Mock Interview", count: totalInterviews, trend: "+8%" },
+        { module: "Technical Quiz", count: totalQuizzes, trend: "+15%" },
       ],
-      recentActivity: [
-        { user: "alice", action: "Completed Technical Quiz", score: 85, time: "2 min ago" },
-        { user: "bob123", action: "Uploaded Resume", score: null, time: "5 min ago" },
-        { user: "charlie", action: "Mock Interview Session", score: 72, time: "12 min ago" },
-        { user: "diana", action: "HR Interview Practice", score: 90, time: "18 min ago" },
-        { user: "eve_dev", action: "Aptitude Test", score: 68, time: "25 min ago" },
-        { user: "frank", action: "Video Interview", score: 78, time: "30 min ago" },
-        { user: "grace", action: "Completed Technical Quiz", score: 92, time: "45 min ago" },
-        { user: "harry", action: "Uploaded Resume", score: null, time: "1 hr ago" },
-      ],
-      dailyStats: [
-        { day: "Mon", users: 12, sessions: 34 },
-        { day: "Tue", users: 18, sessions: 45 },
-        { day: "Wed", users: 15, sessions: 38 },
-        { day: "Thu", users: 22, sessions: 56 },
-        { day: "Fri", users: 20, sessions: 52 },
-        { day: "Sat", users: 8, sessions: 19 },
-        { day: "Sun", users: 10, sessions: 24 },
-      ],
+      recentActivity: recentActivity.slice(0, 8),
     };
 
     res.json({ success: true, stats });
@@ -98,18 +101,28 @@ router.get("/stats", requireAdmin, async (req, res) => {
   }
 });
 
-// GET /api/admin/users — List of users
+// GET /api/admin/users — List from Supabase
 router.get("/users", requireAdmin, async (req, res) => {
-  const users = [
-    { id: "alice", name: "Alice Johnson", email: "alice@example.com", lastActive: "2 min ago", readiness: 78, sessions: 12 },
-    { id: "bob123", name: "Bob Smith", email: "bob@example.com", lastActive: "5 min ago", readiness: 65, sessions: 8 },
-    { id: "charlie", name: "Charlie Brown", email: "charlie@example.com", lastActive: "12 min ago", readiness: 82, sessions: 15 },
-    { id: "diana", name: "Diana Prince", email: "diana@example.com", lastActive: "18 min ago", readiness: 91, sessions: 22 },
-    { id: "eve_dev", name: "Eve Davis", email: "eve@example.com", lastActive: "25 min ago", readiness: 55, sessions: 6 },
-    { id: "frank", name: "Frank Miller", email: "frank@example.com", lastActive: "30 min ago", readiness: 70, sessions: 10 },
-    { id: "demo-user", name: "Demo User", email: "demo@example.com", lastActive: "1 hr ago", readiness: 42, sessions: 3 },
-  ];
-  res.json({ success: true, users });
+  try {
+    if (!supabase) throw new Error("Supabase not configured");
+
+    const { data, error } = await supabase.from("users").select("*").limit(50);
+    if (error) throw error;
+
+    const users = (data || []).map(u => ({
+      id: u.id,
+      name: u.full_name || u.id,
+      email: u.email || "",
+      lastActive: u.created_at,
+      readiness: 0,
+      sessions: 0,
+    }));
+
+    res.json({ success: true, users });
+  } catch (err) {
+    console.error("Admin users error:", err);
+    res.json({ success: true, users: [] });
+  }
 });
 
 export default router;

@@ -1,30 +1,16 @@
 import { Router } from "express";
-import { db } from "../firebaseAdmin.js";
-import { hrQuestions } from "../data/hrQuestions.js"; // Fallback
+import { supabase } from "../supabaseClient.js";
+import { hrQuestions } from "../data/hrQuestions.js";
 import { scoreAnswer } from "../utils/analyzer.js";
 
 const router = Router();
 
-async function getHrQuestionsFromDb() {
-  try {
-    const snapshot = await db.collection("hr").get();
-    if (!snapshot.empty) {
-      return snapshot.docs.map(doc => doc.data());
-    }
-  } catch (err) {
-    console.error("Firestore hr error:", err.message);
-  }
-  return hrQuestions || [];
-}
-
 // GET /api/hr/questions?count=5
-router.get("/questions", async (req, res) => {
-  const { count = 5 } = req.query;
-  const pool = await getHrQuestionsFromDb();
-  
+router.get("/questions", (_req, res) => {
+  const { count = 5 } = _req.query;
+  const pool = hrQuestions || [];
   const shuffled = [...pool].sort(() => 0.5 - Math.random());
   const questions = shuffled.slice(0, Number(count));
-  
   res.json({ questions });
 });
 
