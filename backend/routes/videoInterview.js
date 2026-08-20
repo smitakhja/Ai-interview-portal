@@ -1,18 +1,20 @@
 import { Router } from "express";
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 const router = Router();
 
-let openai;
+let genAI;
+let model;
 try {
-  if (process.env.OPENAI_API_KEY) {
-    openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  if (process.env.GEMINI_API_KEY) {
+    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   }
 } catch (e) {
-  console.warn("OpenAI API key not configured or invalid.");
+  console.warn("Gemini API key not configured or invalid.");
 }
 
 // POST /api/video-interview/start-chat
@@ -20,7 +22,7 @@ try {
 router.post("/start-chat", async (req, res) => {
   const { role = "Data Analyst", topic = "General" } = req.body;
   
-  if (!openai) {
+  if (!model) {
     return res.json({
       success: true,
       message: { role: "assistant", content: `Hello! Welcome to your AI interview for the ${role} position. Tell me about yourself.` },
@@ -39,17 +41,15 @@ Start the interview by introducing yourself, welcoming the candidate, and asking
 
     const history = [{ role: "system", content: systemPrompt }];
     
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: history
-    });
+    const chatPrompt = history.map(m => `${m.role.toUpperCase()}: ${m.content}`).join("\\n") + "\\nASSISTANT: ";
+    const response = await model.generateContent(chatPrompt);
 
-    const aiMessage = response.choices[0].message;
+    const aiMessage = { role: "assistant", content: response.response.text() };
     history.push(aiMessage);
 
     res.json({ success: true, message: aiMessage, history });
   } catch (error) {
-    console.error("OpenAI start error:", error);
+    console.error("Gemini start error:", error);
     res.status(500).json({ error: "Failed to start interview." });
   }
 });
@@ -67,7 +67,7 @@ router.post("/process-chat", async (req, res) => {
   let score = 0;
   let feedback = "Good answer.";
   
-  if (openai && transcript) {
+  if (model && transcript) {
     try {
       const gradingPrompt = `
         You are an expert interviewer. Grade the candidate's latest answer.
@@ -80,15 +80,15 @@ router.post("/process-chat", async (req, res) => {
         Return ONLY a JSON object with keys: "score" (number) and "feedback" (string).
       `;
       
-      const gradeRes = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [{ role: "system", content: gradingPrompt }],
-        response_format: { type: "json_object" }
-      });
-      
-      const analysis = JSON.parse(gradeRes.choices[0].message.content);
-      score = analysis.score || 0;
-      feedback = analysis.feedback || "";
+      const gradeRes = await model.generateContent(gradingPrompt);
+      const textResponse = gradeRes.response.text();
+      // Try to parse JSON from the response text
+      const jsonMatch = textResponse.match(/\\{.*\\}/s);
+      if (jsonMatch) {
+        const analysis = JSON.parse(jsonMatch[0]);
+        score = analysis.score || 0;
+        feedback = analysis.feedback || "";
+      }
     } catch (e) {
       console.error("Grading failed:", e);
     }
@@ -103,30 +103,27 @@ router.post("/process-chat", async (req, res) => {
   }
 
   // 2. Generate the next follow-up question
-  if (!openai) {
+  if (!model) {
     const fallbackMessage = { role: "assistant", content: "Interesting. Can you elaborate on that?" };
     updatedHistory.push(fallbackMessage);
     return res.json({ success: true, message: fallbackMessage, history: updatedHistory, score, feedback });
   }
 
   try {
-    // We add a silent system prompt to guide the AI's next response without adding it to the visible history
     const generationHistory = [...updatedHistory, { 
       role: "system", 
       content: "Acknowledge the user's previous answer briefly if necessary, and then ask ONE follow-up question. Do not repeat previous questions. Be concise and conversational." 
     }];
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: generationHistory
-    });
+    const chatPrompt = generationHistory.map(m => `${m.role.toUpperCase()}: ${m.content}`).join("\\n") + "\\nASSISTANT: ";
+    const response = await model.generateContent(chatPrompt);
 
-    const aiMessage = response.choices[0].message;
+    const aiMessage = { role: "assistant", content: response.response.text() };
     updatedHistory.push(aiMessage);
 
     res.json({ success: true, message: aiMessage, history: updatedHistory, score, feedback });
   } catch (error) {
-    console.error("OpenAI follow-up error:", error);
+    console.error("Gemini follow-up error:", error);
     res.status(500).json({ error: "Failed to generate follow-up." });
   }
 });

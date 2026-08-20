@@ -2,10 +2,13 @@
   "type": "module",
   "scripts": {
     "install": "npm install && cd frontend && npm install",
-    "build": "cd frontend && npm run build"
+    "build": "cd frontend && npm run build",
+    "dev": "concurrently \"cd backend && node local.js\" \"cd frontend && npm run dev\""
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.3",
+    "@supabase/server": "^1.4.1",
+    "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3",
     "@vercel/analytics": "^2.0.1",
     "autoprefixer": "^10.5.4",
@@ -24,5 +27,8 @@
     "pdfjs-dist": "^3.11.174",
     "postcss": "^8.5.19",
     "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
   }
 }

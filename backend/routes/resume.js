@@ -4,20 +4,22 @@ import { analyzeResumeText } from "../utils/analyzer.js";
 import { createWorker } from "tesseract.js";
 import { supabase } from "../supabaseClient.js";
 import { nanoid } from "nanoid";
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 const router = Router();
 
-let openai;
+let genAI;
+let model;
 try {
-  if (process.env.OPENAI_API_KEY) {
-    openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  if (process.env.GEMINI_API_KEY) {
+    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   }
 } catch (e) {
-  console.warn("OpenAI API key not configured.");
+  console.warn("Gemini API key not configured.");
 }
 
 const upload = multer({
@@ -102,18 +104,15 @@ router.post("/analyze", upload.single("resume"), async (req, res) => {
     const extractedSnippet = text.trim().slice(0, 400) + (text.trim().length > 400 ? "..." : "");
 
     let improvedText = null;
-    if (openai && text.trim().length >= 15) {
+    if (model && text.trim().length >= 15) {
       try {
         const prompt = `You are an expert ATS resume reviewer and career coach. 
 Review the following resume text and provide a short, improved, rewritten version that sounds more professional, uses strong action verbs, and is ATS-friendly. Keep it concise.
 Original Text: "${extractedSnippet}"`;
-        const response = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          messages: [{ role: "system", content: prompt }],
-        });
-        improvedText = response.choices[0].message.content;
+        const result = await model.generateContent(prompt);
+        improvedText = result.response.text();
       } catch (aiErr) {
-        console.error("OpenAI resume improvement failed:", aiErr);
+        console.error("Gemini resume improvement failed:", aiErr);
       }
     }
 
