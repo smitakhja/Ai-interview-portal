@@ -40,6 +40,24 @@ router.get("/", async (req, res) => {
         skills: data.skills || ["JavaScript", "React", "Node.js", "SQL"],
         avatarColor: data.avatar_color || "#3457D5",
       });
+    } else {
+      // If no profile, try to get basic details from users table
+      const { data: userData } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", userId)
+        .single();
+        
+      if (userData) {
+        return res.json({
+          name: userData.full_name || userData.email || userId,
+          email: userData.email || "",
+          targetRole: "Software Engineer",
+          experience: "1-3 years",
+          skills: ["JavaScript", "React", "Node.js", "SQL"],
+          avatarColor: "#3457D5",
+        });
+      }
     }
   } catch (err) {
     console.error("Supabase Error (profile GET):", err.message);

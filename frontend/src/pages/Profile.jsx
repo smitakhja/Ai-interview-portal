@@ -6,14 +6,16 @@ import PageShell from "../components/PageShell.jsx";
 import Breadcrumb from "../components/Breadcrumb.jsx";
 import api from "../api.js";
 
-const DEFAULT_PROFILE = {
-  name: "Aarav Mehta",
-  email: "aarav.mehta@example.com",
-  targetRole: "Software Engineer",
-  experience: "1-3 years",
-  skills: ["JavaScript", "React", "Node.js", "SQL"],
-  avatarColor: "#3457D5",
-};
+function getDefaultProfile() {
+  return {
+    name: localStorage.getItem("userName") || "Aarav Mehta",
+    email: localStorage.getItem("userEmail") || "aarav.mehta@example.com",
+    targetRole: "Software Engineer",
+    experience: "1-3 years",
+    skills: ["JavaScript", "React", "Node.js", "SQL"],
+    avatarColor: "#3457D5",
+  };
+}
 
 function getStoredProfile(userId) {
   const stored = localStorage.getItem(`userProfile_${userId}`);
@@ -46,10 +48,10 @@ export default function Profile() {
     api
       .get("/profile")
       .then((res) => {
-        setProfile(res.data || DEFAULT_PROFILE);
+        setProfile(res.data || getDefaultProfile());
       })
       .catch(() => {
-        const fallback = getStoredProfile(userId) || DEFAULT_PROFILE;
+        const fallback = getStoredProfile(userId) || getDefaultProfile();
         setProfile(fallback);
       })
       .finally(() => setLoading(false));
