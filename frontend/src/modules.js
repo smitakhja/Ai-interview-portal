@@ -47,7 +47,7 @@ export const modules = [
     to: "/hr-interview",
     icon: Users,
     color: "coral",
-    desc: "Rehearse behavioral questions with instant answer feedback.",
+    desc: "Practice behavioral questions (open-ended) or take a timed MCQ round — all in one place.",
   },
   {
     key: "progressTracker",

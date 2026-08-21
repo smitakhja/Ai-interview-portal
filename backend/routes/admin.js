@@ -3,10 +3,10 @@ import { supabase } from "../supabaseClient.js";
 
 const router = Router();
 
-// Hardcoded admin credentials
+// Admin credentials — set ADMIN_EMAIL and ADMIN_PASSWORD in Vercel env vars
 const ADMIN_CREDENTIALS = {
-  email: "admin@aiportal.com",
-  password: "Admin@2024",
+  email: process.env.ADMIN_EMAIL || "admin@aiportal.com",
+  password: process.env.ADMIN_PASSWORD || "Admin@2024",
 };
 
 // In-memory session tokens

@@ -80,7 +80,7 @@ export default function Home() {
             <Stat icon={Target} value="7" label="Prep modules" />
             <Stat icon={Zap} value="Instant" label="AI feedback" />
             <Stat icon={Building2} value="Top" label="Company Qs" />
-          </motion.div>
+          </motion.div>you q1 
         </motion.div>
 
         {/* ── Right side: Readiness Ring only ── */}

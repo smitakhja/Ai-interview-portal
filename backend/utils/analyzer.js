@@ -74,8 +74,9 @@ export function scoreAnswer(answerText = "", keywords = []) {
   const wordCount = answerText.trim().split(/\s+/).filter(Boolean).length;
 
   let score = 0;
-  score += Math.min((matched.length / Math.max(keywords.length, 1)) * 60, 60);
-  score += wordCount > 25 ? 25 : Math.round((wordCount / 25) * 25);
+  // Keyword match carries 85 points — short, precise answers still score well
+  score += Math.min((matched.length / Math.max(keywords.length, 1)) * 85, 85);
+  // Bonus 15 points for using concrete connectors (examples, results, reasons)
   score += /\b(for example|specifically|result|because)\b/i.test(answerText) ? 15 : 0;
   score = Math.max(0, Math.min(100, Math.round(score)));
 
@@ -83,7 +84,7 @@ export function scoreAnswer(answerText = "", keywords = []) {
   if (score >= 80) feedback = "Excellent, specific, and well-structured answer.";
   else if (score >= 60) feedback = "Good answer — add a concrete example or result to strengthen it.";
   else if (score >= 35) feedback = "Decent start, but needs more relevant detail and structure.";
-  else feedback = "Too brief — expand your answer with specifics and relevant keywords.";
+  else feedback = "Try including more relevant keywords and a concrete example or result."
 
   return { score, matchedKeywords: matched, wordCount, feedback };
 }
