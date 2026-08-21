@@ -1,0 +1,19 @@
+# Large files that should not be uploaded to Vercel
+backend.zip
+*.zip
+backend.zip
+
+# Test data
+dummy_data_csvs/
+
+# Tesseract trained data (too large for serverless — loaded at runtime)
+backend/eng.traineddata
+
+# Local dev only
+.env
+.env.local
+.DS_Store
+
+# Supabase local
+supabase/.branches
+supabase/.temp
