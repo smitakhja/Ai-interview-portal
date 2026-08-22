@@ -29,8 +29,19 @@ export default function Navbar() {
     }
   }
 
-  function handleLogout() {
+  async function handleLogout() {
+    try {
+      const { auth, firebaseConfigured } = await import("../firebase.js");
+      if (firebaseConfigured) {
+        const { signOut } = await import("firebase/auth");
+        await signOut(auth);
+      }
+    } catch (err) {
+      console.warn("Firebase logout failed:", err);
+    }
     localStorage.removeItem("userId");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userName");
     navigate("/login");
   }
 
