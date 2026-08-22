@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import PageShell from "../components/PageShell.jsx";
 import { Chrome, Loader2, AlertCircle, Sparkles, ArrowRight, X } from "lucide-react";
 import api from "../api.js";
-import { firebaseConfigured as FIREBASE_CONFIGURED } from "../firebase.js";
+import { auth, googleProvider, firebaseConfigured as FIREBASE_CONFIGURED } from "../firebase.js";
+import { signInWithPopup } from "firebase/auth";
 
 export default function Login() {
   const [userId, setUserId] = useState("");
@@ -38,8 +39,6 @@ export default function Login() {
     setLoading(true);
     setError("");
     try {
-      const { signInWithPopup } = await import("firebase/auth");
-      const { auth, googleProvider } = await import("../firebase.js");
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       localStorage.setItem("userId", user.uid);
