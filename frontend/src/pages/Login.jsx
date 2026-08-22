@@ -5,13 +5,46 @@ import PageShell from "../components/PageShell.jsx";
 import { Chrome, Loader2, AlertCircle, Sparkles, ArrowRight, X } from "lucide-react";
 import api from "../api.js";
 import { auth, googleProvider, firebaseConfigured as FIREBASE_CONFIGURED } from "../firebase.js";
-import { signInWithPopup } from "firebase/auth";
+import { signInWithRedirect, getRedirectResult } from "firebase/auth";
+import { useEffect } from "react";
 
 export default function Login() {
   const [userId, setUserId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!FIREBASE_CONFIGURED) return;
+    const checkRedirectResult = async () => {
+      setLoading(true);
+      try {
+        const result = await getRedirectResult(auth);
+        if (result && result.user) {
+          const user = result.user;
+          localStorage.setItem("userId", user.uid);
+          localStorage.setItem("userEmail", user.email);
+          localStorage.setItem("userName", user.displayName);
+          try {
+            await api.post("/auth/login", {
+              userId: user.uid,
+              email: user.email,
+              name: user.displayName,
+            });
+          } catch (err) {
+            console.warn("Backend sync failed:", err);
+          }
+          navigate("/dashboard");
+        }
+      } catch (err) {
+        console.error("Firebase Redirect Error:", err);
+        setError(`Google sign-in failed: ${err.message}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkRedirectResult();
+  }, [navigate]);
 
   async function submit(e) {
     if (e && e.preventDefault) e.preventDefault();
@@ -39,31 +72,10 @@ export default function Login() {
     setLoading(true);
     setError("");
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      localStorage.setItem("userId", user.uid);
-      localStorage.setItem("userEmail", user.email);
-      localStorage.setItem("userName", user.displayName);
-      try {
-        await api.post("/auth/login", {
-          userId: user.uid,
-          email: user.email,
-          name: user.displayName,
-        });
-      } catch (err) {
-        console.warn("Backend sync failed:", err);
-      }
-      navigate("/dashboard");
+      await signInWithRedirect(auth, googleProvider);
     } catch (err) {
       console.error("Firebase Auth Error:", err);
-      setError(
-        err.code === "auth/popup-closed-by-user"
-          ? "Sign-in popup was closed. Please try again."
-          : err.code === "auth/api-key-not-valid.-please-pass-a-valid-api-key."
-          ? "Invalid Firebase API key. Please configure your Firebase credentials in the .env file."
-          : `Google sign-in failed: ${err.message}`
-      );
-    } finally {
+      setError(`Google sign-in failed: ${err.message}`);
       setLoading(false);
     }
   };
