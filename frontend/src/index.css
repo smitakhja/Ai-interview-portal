@@ -45,7 +45,7 @@ body,
   --color-ink-faint: 100 116 139;
   --color-border: 51 65 85;
 
-  --color-primary: 96 165 250;
+  --color-primary: 37 99 235;
   --color-primary-soft: 30 58 138;
   --color-primary-dark: 147 197 253;
   
@@ -71,18 +71,25 @@ body {
 }
 
 .dark body {
+  background-color: #0b021d;
   background-image: 
-    radial-gradient(1.5px 1.5px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 90px 40px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2.5px 2.5px at 160px 120px, rgba(255,255,255,0.9), rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 250px 90px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 300px 180px, rgba(255,255,255,0.7), rgba(0,0,0,0)),
-    radial-gradient(ellipse at 20% 30%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
-    radial-gradient(ellipse at 80% 80%, rgba(59, 130, 246, 0.12) 0%, transparent 40%),
-    radial-gradient(ellipse at 50% 10%, rgba(236, 72, 153, 0.08) 0%, transparent 40%);
-  background-repeat: repeat, repeat, repeat, repeat, repeat, repeat, no-repeat, no-repeat, no-repeat;
-  background-size: 200px 200px, 250px 250px, 300px 300px, 400px 400px, 350px 350px, 450px 450px, 100% 100%, 100% 100%, 100% 100%;
+    radial-gradient(ellipse at 15% 25%, rgba(138, 43, 226, 0.18) 0%, transparent 45%),
+    radial-gradient(ellipse at 75% 65%, rgba(148, 0, 211, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 10%, rgba(65, 105, 225, 0.15) 0%, transparent 40%),
+    radial-gradient(ellipse at 10% 85%, rgba(255, 20, 147, 0.12) 0%, transparent 45%),
+    radial-gradient(1px 1px at 15px 25px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 60px 85px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 130px 45px, rgba(255,255,255,0.9), rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 190px 160px, rgba(255,255,255,0.8), rgba(0,0,0,0)),
+    radial-gradient(2.5px 2.5px at 260px 95px, rgba(255,180,255,0.9), rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 320px 210px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 380px 65px, rgba(255,255,255,0.7), rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 430px 190px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 480px 30px, rgba(200,200,255,0.8), rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 530px 130px, rgba(255,255,255,0.6), rgba(0,0,0,0)),
+    radial-gradient(3px 3px at 580px 250px, rgba(255,150,255,0.8), rgba(0,0,0,0));
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat, repeat, repeat, repeat, repeat, repeat, repeat, repeat, repeat, repeat;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 150px 150px, 200px 200px, 250px 250px, 180px 180px, 300px 300px, 350px 350px, 220px 220px, 400px 400px, 280px 280px, 320px 320px, 450px 450px;
   background-attachment: fixed;
 }
 
@@ -120,7 +127,7 @@ body {
 }
 
 .btn-secondary {
-  @apply inline-flex items-center justify-center gap-2 rounded-full bg-white text-ink font-semibold px-6 py-3 border border-border transition-all duration-200 ease-out transform will-change-transform;
+  @apply inline-flex items-center justify-center gap-2 rounded-full bg-surface text-ink font-semibold px-6 py-3 border border-border transition-all duration-200 ease-out transform will-change-transform;
 }
 
 .btn-secondary:hover,
