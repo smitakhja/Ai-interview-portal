@@ -12,25 +12,25 @@ export default {
         "ink-faint": "rgb(var(--color-ink-faint) / <alpha-value>)",
         border: "rgb(var(--color-border) / <alpha-value>)",
         primary: {
-          DEFAULT: "#3457D5",
-          soft: "#EAF0FF",
-          dark: "#2540A8",
+          DEFAULT: "rgb(var(--color-primary) / <alpha-value>)",
+          soft: "rgb(var(--color-primary-soft) / <alpha-value>)",
+          dark: "rgb(var(--color-primary-dark) / <alpha-value>)",
         },
         mint: {
-          DEFAULT: "#0FA98A",
-          soft: "#E4F8F2",
+          DEFAULT: "rgb(var(--color-mint) / <alpha-value>)",
+          soft: "rgb(var(--color-mint-soft) / <alpha-value>)",
         },
         coral: {
-          DEFAULT: "#FF6B5C",
-          soft: "#FFEDEA",
+          DEFAULT: "rgb(var(--color-coral) / <alpha-value>)",
+          soft: "rgb(var(--color-coral-soft) / <alpha-value>)",
         },
         amber: {
-          DEFAULT: "#F5A623",
-          soft: "#FFF4E0",
+          DEFAULT: "rgb(var(--color-amber) / <alpha-value>)",
+          soft: "rgb(var(--color-amber-soft) / <alpha-value>)",
         },
         lavender: {
-          DEFAULT: "#8B7BE0",
-          soft: "#EFECFC",
+          DEFAULT: "rgb(var(--color-lavender) / <alpha-value>)",
+          soft: "rgb(var(--color-lavender-soft) / <alpha-value>)",
         },
       },
       fontFamily: {
