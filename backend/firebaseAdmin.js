@@ -8,13 +8,21 @@ dotenv.config();
 let _app;
 try {
   if (!getApps().length) {
-    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-      // If user pasted raw JSON
+    if (process.env.FIREBASE_SERVICE_ACCOUNT || (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY)) {
       let serviceAccount;
-      try {
-        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-      } catch (e) {
-        console.error("Invalid JSON in FIREBASE_SERVICE_ACCOUNT");
+      
+      if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+        try {
+          serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        } catch (e) {
+          console.error("Invalid JSON in FIREBASE_SERVICE_ACCOUNT");
+        }
+      } else {
+        serviceAccount = {
+          projectId: process.env.FIREBASE_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        };
       }
       
       if (serviceAccount) {
@@ -22,7 +30,7 @@ try {
         console.log("🔥 Firebase Admin initialized securely.");
       }
     } else {
-      console.warn("⚠️ FIREBASE_SERVICE_ACCOUNT missing. Firebase Admin is running in unauthenticated stub mode. Database writes will fail on Vercel.");
+      console.warn("⚠️ Firebase Admin credentials missing. Running in unauthenticated stub mode. Database writes will fail on Vercel.");
       _app = initializeApp();
     }
   } else {
