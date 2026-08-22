@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import PageShell from "../components/PageShell.jsx";
 import api from "../api.js";
-import { Chrome, Apple, Sparkles, Loader2, AlertCircle, X, UserPlus } from "lucide-react";
+import { Chrome, Sparkles, Loader2, AlertCircle, X, UserPlus } from "lucide-react";
 import { firebaseConfigured as FIREBASE_CONFIGURED } from "../firebase.js";
 
 export default function Register() {
@@ -185,32 +185,25 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Social buttons */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={handleGoogleSignUp}
-              disabled={loading}
-              className="flex items-center justify-center gap-2 rounded-xl bg-white text-ink font-semibold px-4 py-2.5 border border-border transition-all duration-200 hover:shadow-soft hover:border-primary/20 disabled:opacity-50"
-            >
+          {/* Google Sign-In */}
+          <button
+            type="button"
+            onClick={handleGoogleSignUp}
+            disabled={loading}
+            className="flex items-center justify-center gap-2.5 w-full rounded-xl bg-white text-ink font-semibold px-4 py-3 border border-border transition-all duration-200 hover:shadow-soft hover:border-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <Loader2 size={16} className="animate-spin text-ink-soft" />
+            ) : (
               <Chrome size={18} className="text-[#4285F4]" />
-              <span className="text-sm">Google</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                if (!FIREBASE_CONFIGURED) {
-                  setError("Apple Sign-In requires Firebase to be configured. Use the form above instead.");
-                  return;
-                }
-              }}
-              disabled={loading}
-              className="flex items-center justify-center gap-2 rounded-xl bg-ink text-white font-semibold px-4 py-2.5 border border-ink transition-all duration-200 hover:shadow-soft hover:bg-ink/90 disabled:opacity-50"
-            >
-              <Apple size={18} />
-              <span className="text-sm">Apple</span>
-            </button>
-          </div>
+            )}
+            <span className="text-sm">Sign up with Google</span>
+            {!FIREBASE_CONFIGURED && (
+              <span className="ml-auto text-[10px] font-normal text-ink-faint bg-paper border border-border rounded-full px-2 py-0.5">
+                Setup required
+              </span>
+            )}
+          </button>
 
           {!FIREBASE_CONFIGURED && (
             <p className="text-center text-xs text-ink-faint leading-relaxed">
