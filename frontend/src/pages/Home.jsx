@@ -37,7 +37,7 @@ export default function Home() {
         <motion.div variants={stagger} initial="hidden" animate="show">
           <motion.div
             variants={item}
-            className="inline-flex items-center gap-2 bg-white/60 backdrop-blur-md border border-border rounded-full px-4 py-1.5 text-xs font-semibold text-primary shadow-soft mb-6"
+            className="inline-flex items-center gap-2 bg-surface/60 backdrop-blur-md border border-border rounded-full px-4 py-1.5 text-xs font-semibold text-primary shadow-soft mb-6"
           >
             <Sparkles size={14} className="text-primary" /> Your AI Interview Portal
           </motion.div>
@@ -117,7 +117,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 + (i * 0.1) }}
-                  className="flex items-center gap-2 bg-white/50 backdrop-blur-sm rounded-xl px-3 py-2.5 border border-border/50 hover:bg-white transition-colors"
+                  className="flex items-center gap-2 bg-surface/50 backdrop-blur-sm rounded-xl px-3 py-2.5 border border-border/50 hover:bg-surface transition-colors"
                 >
                   <m.icon size={15} className={`text-${m.color} shrink-0`} />
                   <span className="text-xs font-semibold text-ink-soft truncate">{m.label}</span>
@@ -144,7 +144,7 @@ export default function Home() {
           <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink">Your path to readiness</h2>
         </div>
         
-        <div className="card p-4 sm:p-8 overflow-x-auto relative shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-white bg-white/50 backdrop-blur-md scrollbar-hide -mx-4 sm:mx-0 rounded-none sm:rounded-xl2">
+        <div className="card p-4 sm:p-8 overflow-x-auto relative shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-white bg-surface/50 backdrop-blur-md scrollbar-hide -mx-4 sm:mx-0 rounded-none sm:rounded-xl2">
           <div className="flex items-center min-w-max gap-3 sm:gap-4 px-4 sm:px-0 py-2 sm:py-0">
             <FlowNode label="Dashboard" active to="/dashboard" />
             {modules.slice(0, 6).map((m, i) => (
@@ -189,7 +189,7 @@ function FlowNode({ label, active, icon: Icon, to, index = 0 }) {
       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-soft transition-all duration-300 ${
         active 
           ? "bg-primary text-white shadow-glow" 
-          : "bg-white border border-border text-ink hover:border-primary hover:text-primary"
+          : "bg-surface border border-border text-ink hover:border-primary hover:text-primary"
       }`}>
         {Icon ? <Icon size={22} /> : <Target size={22} />}
       </div>

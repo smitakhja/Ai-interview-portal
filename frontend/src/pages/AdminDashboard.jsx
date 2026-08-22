@@ -115,7 +115,7 @@ export default function AdminDashboard() {
           </Link>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 text-sm font-semibold text-ink-soft hover:text-coral transition-colors bg-white border border-border rounded-full px-4 py-2 hover:shadow-soft"
+            className="flex items-center gap-2 text-sm font-semibold text-ink-soft hover:text-coral transition-colors bg-surface border border-border rounded-full px-4 py-2 hover:shadow-soft"
           >
             <LogOut size={15} />
             Sign out
@@ -124,7 +124,7 @@ export default function AdminDashboard() {
       </motion.div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 bg-white border border-border rounded-full p-1 mb-8 w-fit">
+      <div className="flex items-center gap-1 bg-surface border border-border rounded-full p-1 mb-8 w-fit">
         {[
           { key: "overview", label: "Overview", icon: BarChart3 },
           { key: "users", label: "Users", icon: Users },

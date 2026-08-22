@@ -158,7 +158,7 @@ export default function Login() {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="flex items-center justify-center gap-2.5 w-full rounded-xl bg-white text-ink font-semibold px-4 py-3 border border-border transition-all duration-200 hover:shadow-soft hover:border-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-2.5 w-full rounded-xl bg-surface text-ink font-semibold px-4 py-3 border border-border transition-all duration-200 hover:shadow-soft hover:border-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <Loader2 size={16} className="animate-spin text-ink-soft" />

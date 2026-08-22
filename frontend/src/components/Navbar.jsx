@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Bell, User, LogOut, Menu, X, Shield } from "lucide-react";
+import { Sparkles, Bell, User, LogOut, Menu, X, Shield, Sun, Moon } from "lucide-react";
 import { COMPANY_LOGOS } from "../modules.js";
 
 export default function Navbar() {
@@ -11,6 +11,23 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const isAdmin = localStorage.getItem("isAdmin") === "true";
   const isAdminPage = location.pathname.startsWith("/admin");
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains("dark"));
+  }, []);
+
+  function toggleTheme() {
+    if (isDark) {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+      setIsDark(false);
+    } else {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+      setIsDark(true);
+    }
+  }
 
   function handleLogout() {
     localStorage.removeItem("userId");
@@ -26,7 +43,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40">
       {/* Top Logo Slider */}
-      <div className="bg-white py-1.5 sm:py-2 overflow-hidden flex whitespace-nowrap border-b border-border shadow-sm">
+      <div className="bg-surface py-1.5 sm:py-2 overflow-hidden flex whitespace-nowrap border-b border-border shadow-sm">
         <motion.div 
           className="flex w-max items-center"
           animate={{ x: [0, -1000] }}
@@ -70,7 +87,7 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         {!isHome && (
-          <nav className="hidden md:flex items-center gap-1 bg-white border border-border rounded-full px-1.5 py-1.5 shadow-soft">
+          <nav className="hidden md:flex items-center gap-1 bg-surface border border-border rounded-full px-1.5 py-1.5 shadow-soft">
             {navLinks.map(([label, to]) => (
               <Link
                 key={to}
@@ -88,7 +105,13 @@ export default function Navbar() {
         )}
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <button className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-border flex items-center justify-center text-ink-soft hover:text-primary hover:border-primary/30 transition-colors">
+          <button 
+            onClick={toggleTheme}
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-surface border border-border flex items-center justify-center text-ink-soft hover:text-primary hover:border-primary/30 transition-colors"
+          >
+            {isDark ? <Sun size={15} /> : <Moon size={15} />}
+          </button>
+          <button className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-surface border border-border flex items-center justify-center text-ink-soft hover:text-primary hover:border-primary/30 transition-colors">
             <Bell size={15} />
           </button>
           {localStorage.getItem("userId") ? (
@@ -112,14 +135,14 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-9 h-9 rounded-full bg-white border border-border flex items-center justify-center text-ink-soft hover:text-primary hover:border-primary/30 transition-colors"
+                className="w-9 h-9 rounded-full bg-surface border border-border flex items-center justify-center text-ink-soft hover:text-primary hover:border-primary/30 transition-colors"
               >
                 <LogOut size={16} />
               </button>
             </div>
           ) : (
             <div className="hidden sm:flex items-center gap-2">
-              <Link to="/login" className="text-sm px-3 py-1.5 rounded-full bg-white border border-border text-ink-soft hover:text-ink">
+              <Link to="/login" className="text-sm px-3 py-1.5 rounded-full bg-surface border border-border text-ink-soft hover:text-ink">
                 Log in
               </Link>
               <Link to="/register" className="text-sm px-3 py-1.5 rounded-full bg-primary text-white hover:opacity-90">
@@ -131,7 +154,7 @@ export default function Navbar() {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-border flex items-center justify-center text-ink-soft hover:text-ink transition-colors"
+            className="md:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-surface border border-border flex items-center justify-center text-ink-soft hover:text-ink transition-colors"
           >
             {menuOpen ? <X size={16} /> : <Menu size={16} />}
           </button>
@@ -181,13 +204,13 @@ export default function Navbar() {
                       <Link to="/profile" onClick={() => setMenuOpen(false)} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-primary-soft text-primary font-medium">
                         Profile
                       </Link>
-                      <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-white border border-border text-ink-soft font-medium">
+                      <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-surface border border-border text-ink-soft font-medium">
                         Log out
                       </button>
                     </>
                   ) : (
                     <>
-                      <Link to="/login" onClick={() => setMenuOpen(false)} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-white border border-border text-ink-soft font-medium">
+                      <Link to="/login" onClick={() => setMenuOpen(false)} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-surface border border-border text-ink-soft font-medium">
                         Log in
                       </Link>
                       <Link to="/register" onClick={() => setMenuOpen(false)} className="flex-1 text-center text-sm px-3 py-2 rounded-xl bg-primary text-white font-medium">

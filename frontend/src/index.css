@@ -12,6 +12,24 @@ body,
   height: 100%;
 }
 
+:root {
+  --color-paper: 245 247 251;
+  --color-surface: 255 255 255;
+  --color-ink: 27 35 64;
+  --color-ink-soft: 91 100 120;
+  --color-ink-faint: 154 163 184;
+  --color-border: 228 233 242;
+}
+
+.dark {
+  --color-paper: 15 23 42;
+  --color-surface: 30 41 59;
+  --color-ink: 248 250 252;
+  --color-ink-soft: 148 163 184;
+  --color-ink-faint: 100 116 139;
+  --color-border: 51 65 85;
+}
+
 body {
   @apply bg-paper text-ink font-body antialiased;
   background-image: radial-gradient(circle at 15% 10%, rgba(52, 87, 213, 0.06), transparent 45%),

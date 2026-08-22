@@ -127,7 +127,7 @@ export default function ResumeAnalyzer() {
                     <img
                       src={result.filePreviewUrl || localPreviewUrl}
                       alt="Uploaded resume/photo"
-                      className="max-h-48 rounded-lg object-contain border border-border bg-white p-1"
+                      className="max-h-48 rounded-lg object-contain border border-border bg-surface p-1"
                     />
                   </div>
                 )}
@@ -135,7 +135,7 @@ export default function ResumeAnalyzer() {
                 {result.extractedSnippet && (
                   <div className="mb-5 p-4 bg-paper rounded-xl border border-border">
                     <p className="text-xs font-semibold text-ink-soft uppercase tracking-wider mb-1.5">Extracted Text (OCR)</p>
-                    <p className="text-xs font-mono text-ink bg-white p-3 rounded-lg border border-border max-h-32 overflow-y-auto whitespace-pre-wrap">
+                    <p className="text-xs font-mono text-ink bg-surface p-3 rounded-lg border border-border max-h-32 overflow-y-auto whitespace-pre-wrap">
                       {result.extractedSnippet}
                     </p>
                   </div>

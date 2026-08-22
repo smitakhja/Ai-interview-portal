@@ -1,15 +1,16 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,jsx}"],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        paper: "#F5F7FB",
-        surface: "#FFFFFF",
-        ink: "#1B2340",
-        "ink-soft": "#5B6478",
-        "ink-faint": "#9AA3B8",
-        border: "#E4E9F2",
+        paper: "rgb(var(--color-paper) / <alpha-value>)",
+        surface: "rgb(var(--color-surface) / <alpha-value>)",
+        ink: "rgb(var(--color-ink) / <alpha-value>)",
+        "ink-soft": "rgb(var(--color-ink-soft) / <alpha-value>)",
+        "ink-faint": "rgb(var(--color-ink-faint) / <alpha-value>)",
+        border: "rgb(var(--color-border) / <alpha-value>)",
         primary: {
           DEFAULT: "#3457D5",
           soft: "#EAF0FF",

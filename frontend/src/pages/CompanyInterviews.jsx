@@ -78,7 +78,7 @@ function VideoModal({ video, company, onClose }) {
                 <p className="text-[11px] sm:text-xs text-ink-soft truncate">{video.title}</p>
               </div>
             </div>
-            <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/70 border border-border flex items-center justify-center text-ink-soft hover:text-ink transition-colors shrink-0 ml-2"><X size={15} /></button>
+            <button onClick={onClose} className="w-8 h-8 rounded-full bg-surface/70 border border-border flex items-center justify-center text-ink-soft hover:text-ink transition-colors shrink-0 ml-2"><X size={15} /></button>
           </div>
           {/* Tab bar */}
           <div className="flex border-b border-border px-3 sm:px-6 overflow-x-auto">
@@ -157,7 +157,7 @@ function VideoCard({ video, company, onOpen }) {
       <div className="relative overflow-hidden bg-ink" style={{ paddingBottom: "56%" }}>
         {thumbFailed ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ background: `linear-gradient(135deg, ${company?.color || '#3457D5'}22, ${company?.color || '#3457D5'}44)` }}>
-            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/15 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center mb-2">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-surface/15 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center mb-2">
               <Play size={20} className="text-white/80 ml-0.5 sm:ml-1" />
             </div>
             <p className="text-white/60 text-[10px] sm:text-xs font-semibold">{company?.name} Interview</p>
@@ -173,10 +173,10 @@ function VideoCard({ video, company, onOpen }) {
           />
         )}
         <div className={`absolute inset-0 bg-ink/40 flex items-center justify-center transition-opacity duration-300 ${hovered ? "opacity-100" : "opacity-0"}`}>
-          <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white/60 flex items-center justify-center"><Play size={18} className="text-white ml-0.5" /></div>
+          <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-surface/20 backdrop-blur-sm border-2 border-white/60 flex items-center justify-center"><Play size={18} className="text-white ml-0.5" /></div>
         </div>
         <span className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 bg-ink/80 text-white text-[10px] sm:text-xs font-mono px-1.5 sm:px-2 py-0.5 rounded">{video.duration}</span>
-        <span className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 flex items-center gap-1 sm:gap-1.5 bg-white/90 backdrop-blur-sm text-ink text-[10px] sm:text-xs font-semibold px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full shadow-soft"><img src={company?.logo} alt={company?.name} className="h-3 sm:h-3.5 w-auto max-w-[40px] sm:max-w-[56px] object-contain" referrerPolicy="no-referrer" /></span>
+        <span className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 flex items-center gap-1 sm:gap-1.5 bg-surface/90 backdrop-blur-sm text-ink text-[10px] sm:text-xs font-semibold px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full shadow-soft"><img src={company?.logo} alt={company?.name} className="h-3 sm:h-3.5 w-auto max-w-[40px] sm:max-w-[56px] object-contain" referrerPolicy="no-referrer" /></span>
       </div>
       <div className="p-3 sm:p-4">
         <p className="font-semibold text-ink text-xs sm:text-sm leading-tight line-clamp-2 mb-2 sm:mb-3">{video.title}</p>
@@ -252,8 +252,8 @@ export default function CompanyInterviews() {
         <p className="text-sm sm:text-base text-ink-soft mt-2 max-w-xl">Watch real mock interviews, learn the questions asked at top companies, and prepare smarter with curated video resources.</p>
         <div className="flex flex-wrap gap-3 sm:gap-6 mt-4 sm:mt-6">
           {[{ icon: Building2, val: COMPANIES.length, label: "Companies" }, { icon: Play, val: VIDEOS.length, label: "Videos" }, { icon: BookOpen, val: VIDEOS.reduce((s, v) => s + v.questions.length, 0), label: "Questions" }].map(({ icon: Icon, val, label }) => (
-            <div key={label} className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border border-border/50 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white border border-border flex items-center justify-center text-primary shadow-soft shrink-0"><Icon size={14} className="sm:w-4 sm:h-4" /></div>
+            <div key={label} className="flex items-center gap-2 bg-surface/50 backdrop-blur-sm border border-border/50 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-surface border border-border flex items-center justify-center text-primary shadow-soft shrink-0"><Icon size={14} className="sm:w-4 sm:h-4" /></div>
               <div><p className="font-display font-bold text-ink text-sm sm:text-base leading-none">{val}+</p><p className="text-[10px] sm:text-xs text-ink-soft mt-0.5">{label}</p></div>
             </div>
           ))}
@@ -277,7 +277,7 @@ export default function CompanyInterviews() {
                   <p className="font-semibold text-ink text-sm sm:text-base">{selectedCompanyData.name} Interview</p>
                   <p className="text-xs sm:text-sm text-ink-soft mt-0.5">{selectedCompanyData.desc}</p>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2">
-                    {selectedCompanyData.roles.map((r) => (<span key={r} className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full bg-white/70 border border-border text-ink-soft">{r}</span>))}
+                    {selectedCompanyData.roles.map((r) => (<span key={r} className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full bg-surface/70 border border-border text-ink-soft">{r}</span>))}
                   </div>
                 </div>
                 <button onClick={() => setSelectedCompany(null)} className="hidden sm:block ml-auto text-ink-faint hover:text-ink shrink-0"><X size={14} /></button>
@@ -291,17 +291,17 @@ export default function CompanyInterviews() {
         {/* Search bar */}
         <div className="relative w-full lg:max-w-sm shrink-0">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint" />
-          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search videos, tags, questions..." className="w-full bg-white border border-border rounded-full pl-9 pr-4 py-2 sm:py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-primary/30 shadow-soft" />
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search videos, tags, questions..." className="w-full bg-surface border border-border rounded-full pl-9 pr-4 py-2 sm:py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-primary/30 shadow-soft" />
           {search && (<button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink"><X size={13} /></button>)}
         </div>
         {/* Difficulty filter + Tag filter */}
         <div className="flex items-center gap-2 overflow-x-auto lg:flex-wrap pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 scrollbar-hide lg:overflow-visible">
-          <div className="flex items-center gap-1 sm:gap-1.5 bg-white border border-border rounded-full px-2.5 sm:px-3 py-1.5 sm:py-2 shadow-soft shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 bg-surface border border-border rounded-full px-2.5 sm:px-3 py-1.5 sm:py-2 shadow-soft shrink-0">
             <Filter size={12} className="text-ink-faint" />
             {diffs.map((d) => (<button key={d} onClick={() => setDiffFilter(d)} className={`text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full transition-colors whitespace-nowrap ${diffFilter === d ? "bg-primary text-white" : "text-ink-soft hover:text-ink"}`}>{d}</button>))}
           </div>
           {allTags.slice(0, 7).map((t) => (
-            <button key={t} onClick={() => setTagFilter(t)} className={`shrink-0 lg:shrink flex items-center gap-1 text-[10px] sm:text-xs font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border transition-all whitespace-nowrap ${tagFilter === t ? "bg-primary-soft border-primary/20 text-primary" : "bg-white border-border text-ink-soft hover:text-ink"}`}>
+            <button key={t} onClick={() => setTagFilter(t)} className={`shrink-0 lg:shrink flex items-center gap-1 text-[10px] sm:text-xs font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border transition-all whitespace-nowrap ${tagFilter === t ? "bg-primary-soft border-primary/20 text-primary" : "bg-surface border-border text-ink-soft hover:text-ink"}`}>
               {t !== "All" && <Tag size={9} />} {t}
             </button>
           ))}

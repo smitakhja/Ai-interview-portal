@@ -379,7 +379,7 @@ export default function HRInterview() {
                     disabled={submitted}
                     className={cls}
                   >
-                    <span className="w-7 h-7 rounded-lg bg-white border border-border flex items-center justify-center text-xs font-bold text-ink-soft shrink-0">
+                    <span className="w-7 h-7 rounded-lg bg-surface border border-border flex items-center justify-center text-xs font-bold text-ink-soft shrink-0">
                       {OPTION_LABELS[oi]}
                     </span>
                     <span className="flex-1">{opt}</span>
@@ -441,7 +441,7 @@ export default function HRInterview() {
                           <div key={cat} className={`rounded-xl p-3 bg-${cc}-soft`}>
                             <p className={`text-xs font-semibold text-${cc} truncate`}>{cat}</p>
                             <p className="font-display font-bold text-ink mt-1">{v.correct}/{v.total}</p>
-                            <div className="h-1.5 bg-white/60 rounded-full mt-2 overflow-hidden">
+                            <div className="h-1.5 bg-surface/60 rounded-full mt-2 overflow-hidden">
                               <div className={`h-full bg-${cc} rounded-full transition-all duration-700`} style={{ width: `${pct}%` }} />
                             </div>
                           </div>
